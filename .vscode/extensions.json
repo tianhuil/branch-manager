@@ -1,0 +1,36 @@
+{
+  "recommendations": [
+    // Essential
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+
+    // Next.js & React
+    "dsznajder.es7-react-js-snippets",
+
+    // TypeScript
+    "usernamehw.errorlens",
+
+    // Git
+    "eamodio.gitlens",
+
+    // Utilities
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    "formulahendry.auto-rename-tag",
+    "naumovs.color-highlight",
+
+    // Bun
+    "oven.bun-vscode"
+  ],
+  "unwantedRecommendations": [
+    // Conflicts with ESLint and Prettier
+    "biomejs.biome",
+    "esbenp.beautify",
+
+    // Superseded by built-in TypeScript support
+    "ms-vscode.vscode-typescript-next"
+  ]
+}
