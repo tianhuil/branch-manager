@@ -13,9 +13,6 @@
     // TypeScript
     "usernamehw.errorlens",
 
-    // Git
-    "eamodio.gitlens",
-
     // Utilities
     "christian-kohler.path-intellisense",
     "christian-kohler.npm-intellisense",
