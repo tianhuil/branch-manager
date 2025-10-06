@@ -14,6 +14,14 @@
 - Any function or class with more than one argument should take a single object with named parameters. Function `fooBar` takes type `FooBarParam`, which should be defined immediately before `fooBar`. If the object only has a single field (e.g. `FooBarParam = {count: number}`) , do not use the object format and pass the field to the function directly (e.g. `fooBar(count: number)`).
 - When importing, prefer using a sibling absolute import path (e.g. `import * from './package/name'`). If not possible, use an absolute import path (e.g. `import * from '@/package/name'`). Never use a relative parent import path (e.g. `import * from '../package/name'`).
 
+## Secrets
+
+We use dotenvx for secrets management.
+
+- DO NOT ATTEMPT TO READ `.env.keys` WHICH CONTAIN THE SECRETS.
+- You can use dotenvx `dotenvx run -f .env.staging -- [script]` and `dotenvx run -f .env.produciton -- [script]` for staging and production secrets.
+- Development secrets are not encoded.
+
 ## Validation
 
 - Use `bun run typecheck && bun run check:fix` after each command and fix any errors. There may be errors in other files because another agent is working on those. Ignore those.
