@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# but allow dotenvx keys, encrypted env files, and example file
+!.env.staging
+!.env.production
+!.env.development
 
 # vercel
 .vercel

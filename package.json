@@ -3,29 +3,38 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
-    "start": "next start",
+    "dev": "dotenvx run -- next dev --turbopack",
+    "dev:staging": "dotenvx run -f .env.staging -- next dev --turbopack",
+    "dev:production": "dotenvx run -f .env.production -- next dev --turbopack",
+    "build": "dotenvx run -- next build --turbopack",
+    "build:staging": "dotenvx run -f .env.staging -- next build --turbopack",
+    "build:production": "dotenvx run -f .env.production -- next build --turbopack",
+    "start": "dotenvx run -- next start",
+    "start:staging": "dotenvx run -f .env.staging -- next start",
+    "start:production": "dotenvx run -f .env.production -- next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
     "check": "eslint --fix && prettier --write .",
+    "check:fix": "eslint --fix && prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.4"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@dotenvx/dotenvx": "^1.51.0",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
-    "@eslint/eslintrc": "^3"
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
