@@ -64,10 +64,15 @@ jobs:
       # Step 1: Create a Neon branch
       - name: Create Neon Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened'
-        id: create_branch
         run: |
           bun neon branches create --name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
           bun neon roles create --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+
+      # Step 2: Get the URL
+      - name: Get Neon Branch URL
+        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        id: db_url_step
+        run: |
           DATABASE_URL=$(bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
@@ -77,14 +82,14 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: bun drizzle-kit push
         env:
-          DATABASE_URL: ${{ steps.create_branch.outputs.db_url }}
+          DATABASE_URL: ${{ steps.db_url_step.outputs.db_url }}
 
       # Step 3: Set Vercel Environment Variable for the Preview branch
       - name: Set Vercel Preview Environment Variable
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.create_branch.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+          echo "${{ steps.db_url_step.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --scope "${{ steps.secrets.outputs.vercel_project_id }}" \
             --force
@@ -106,8 +111,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const proxyUrl = `${{ steps.create_branch.outputs.db_url }}`;
-            const webAccessUrl = `${{ steps.create_branch.outputs.db_web_access_url }}`;
+            const proxyUrl = `${{ steps.db_url_step.outputs.db_url }}`;
+            const webAccessUrl = `${{ steps.db_url_step.outputs.db_web_access_url }}`;
 
             const body = `
             ### 🌿 Neon Database & Vercel Preview Ready
