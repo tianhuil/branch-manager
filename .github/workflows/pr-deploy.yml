@@ -94,7 +94,7 @@ jobs:
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
           echo "${{ steps.db_url_step.outputs.db_url }}" | \
             bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-              --token ${{ steps.secrets.outputs.vercel_token }} \
+              --token "${{ steps.secrets.outputs.vercel_token }}" \
               --force
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
@@ -105,7 +105,7 @@ jobs:
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun dotenvx run -f .env.ci -- bun vercel deploy \
-            --token ${{ steps.secrets.outputs.vercel_token }} \
+            --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes \
             --prod
         env:
@@ -148,7 +148,7 @@ jobs:
         run: |
           # Remove DATABASE_URL for the specific Git branch using Vercel CLI
           bun dotenvx run -f .env.ci -- bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
-            --token ${{ steps.secrets.outputs.vercel_token }} \
+            --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes || echo "Environment variable not found or already deleted"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
