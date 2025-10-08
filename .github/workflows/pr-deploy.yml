@@ -44,8 +44,7 @@ jobs:
       - name: Extract and output secrets
         id: secrets
         run: |
-          # Extract secrets using dotenvx and set as outputs
-          export DOTENV_PRIVATE_KEY_CI="${{ secrets.DOTENV_PRIVATE_KEY_CI }}"
+          echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
 
           NEON_API_KEY=$(bun dotenvx get NEON_API_KEY -f .env.ci)
           VERCEL_PROJECT_ID=$(bun dotenvx get VERCEL_PROJECT_ID -f .env.ci)
