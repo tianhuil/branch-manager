@@ -75,7 +75,7 @@ jobs:
       # Step 2: Run Drizzle migrations
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
-        run: bun run db:push
+        run: bun drizzle-kit push
         env:
           DATABASE_URL: ${{ steps.create_branch.outputs.db_url }}
 
