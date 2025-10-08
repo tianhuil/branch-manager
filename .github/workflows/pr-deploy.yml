@@ -79,10 +79,10 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo ${{ steps.db_url_step.outputs.db_url }} | \
-            bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-            --token $(bun dotenvx get VERCEL_TOKEN -f .env.ci) \
-            --force
+          echo "${{ steps.db_url_step.outputs.db_url }}" | bun dotenvx run -f .env.ci -- sh -c " \
+            bun vercel env add DATABASE_URL preview \"${{ github.head_ref }}\" \
+              --token \"$VERCEL_TOKEN\" \
+              --force"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
