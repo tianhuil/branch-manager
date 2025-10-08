@@ -67,11 +67,12 @@ jobs:
       - name: Create Neon Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: create_branch
-        uses: neondatabase/create-branch-action@v5
-        with:
-          project_id: ${{ steps.secrets.outputs.neon_project_id }}
-          branch_name: ${{ github.head_ref }}
-          api_key: ${{ steps.secrets.outputs.neon_api_key }}
+        run: |
+          bun neon branches create --name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+          bun neon roles create --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+          DATABASE_URL=$(bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}")
+          echo "::add-mask::$DATABASE_URL"
+          echo "db_proxy_url=$DATABASE_URL" >> $GITHUB_OUTPUT
 
       # Step 2: Run Drizzle migrations
       - name: Run Drizzle Migrate
@@ -144,11 +145,9 @@ jobs:
       # Step 7: Delete the Neon Branch
       - name: Delete Neon Branch
         if: github.event.action == 'closed'
-        uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ steps.secrets.outputs.neon_project_id }}
-          branch_name: ${{ github.head_ref }}
-          api_key: ${{ steps.secrets.outputs.neon_api_key }}
+        run: |
+          bun neon roles delete --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+          bun neon branches delete --name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
 
       # Step 8: Comment on PR Close
       - name: Comment on PR Close
