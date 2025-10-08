@@ -46,8 +46,13 @@ jobs:
       - name: Create Neon Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
-          bun dotenvx run -f .env.ci -- bun neon branches create --name "${{ github.head_ref }}"
-          bun dotenvx run -f .env.ci -- bun neon roles create --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}"
+          bun dotenvx run -f .env.ci -- \
+            bun neon branches create \
+              --name "${{ github.head_ref }}"
+          bun dotenvx run -f .env.ci -- \
+            bun neon roles create \
+              --name "${{ github.head_ref }}" \
+              --branch "${{ github.head_ref }}"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
@@ -74,11 +79,11 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.db_url_step.outputs.db_url }}" | bun dotenvx run -f .env.ci -- bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-            --token "$VERCEL_TOKEN" \
+          echo "$DATABASE_URL" | bun dotenvx run -f .env.ci -- bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --force
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          DATABASE_URL: ${{ steps.db_url_step.outputs.db_url }}
 
       # Step 4: Trigger a Vercel redeployment to use the new environment variable
       - name: Trigger Vercel Redeployment
@@ -86,7 +91,6 @@ jobs:
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun dotenvx run -f .env.ci -- bun vercel deploy \
-            --token "$VERCEL_TOKEN" \
             --yes \
             --prod
         env:
