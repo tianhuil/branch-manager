@@ -21,9 +21,21 @@
     "db:psql": "dotenvx run -f .env.$VERCEL_ENV -f .env -- sh -c 'psql $DATABASE_URL'",
     "db:psql-root": "dotenvx run -f .env.root.local -- sh -c 'psql $ROOT_DATABASE_URL'",
     "db:psql-setup-environment": "dotenvx run -f .env.root.local -f .env.$VERCEL_ENV -- sh -c 'psql $ROOT_DATABASE_URL -v db_name=$DB_NAME -v db_user=$DB_USER -v db_password=$DB_PASSWORD -f script/setup.sql' && bun run db:echo-url",
-    "db:echo-url": "dotenvx run -f .env.$VERCEL_ENV -f .env -- sh -c 'echo $DATABASE_URL'"
+    "db:echo-url": "dotenvx run -f .env.$VERCEL_ENV -f .env -- sh -c 'echo $DATABASE_URL'",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "dotenvx run -- drizzle-kit migrate",
+    "db:migrate:staging": "dotenvx run -f .env.staging -- drizzle-kit migrate",
+    "db:migrate:production": "dotenvx run -f .env.production -- drizzle-kit migrate",
+    "db:push": "dotenvx run -- drizzle-kit push",
+    "db:push:staging": "dotenvx run -f .env.staging -- drizzle-kit push",
+    "db:push:production": "dotenvx run -f .env.production -- drizzle-kit push",
+    "db:studio": "dotenvx run -- drizzle-kit studio",
+    "db:studio:staging": "dotenvx run -f .env.staging -- drizzle-kit studio",
+    "db:studio:production": "dotenvx run -f .env.production -- drizzle-kit studio"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "drizzle-orm": "^0.44.6",
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -35,6 +47,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "prettier": "^3.6.2",
