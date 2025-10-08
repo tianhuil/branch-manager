@@ -74,7 +74,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          DATABASE_URL=$(bun dotenvx run -f .env.ci -- bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}")
+          DATABASE_URL=$(bun dotenvx run -f .env.ci --quiet -- bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
