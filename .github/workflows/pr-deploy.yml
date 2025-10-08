@@ -70,7 +70,7 @@ jobs:
           bun neon roles create --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
           DATABASE_URL=$(bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}")
           echo "::add-mask::$DATABASE_URL"
-          echo "db_proxy_url=$DATABASE_URL" >> $GITHUB_OUTPUT
+          echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
 
       # Step 2: Run Drizzle migrations
       - name: Run Drizzle Migrate
@@ -84,7 +84,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.create_branch.outputs.db_proxy_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+          echo "${{ steps.create_branch.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --scope "${{ steps.secrets.outputs.vercel_project_id }}" \
             --force
@@ -106,7 +106,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const proxyUrl = `${{ steps.create_branch.outputs.db_proxy_url }}`;
+            const proxyUrl = `${{ steps.create_branch.outputs.db_url }}`;
             const webAccessUrl = `${{ steps.create_branch.outputs.db_web_access_url }}`;
 
             const body = `
