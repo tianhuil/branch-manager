@@ -39,6 +39,7 @@
     "drizzle-kit": "^0.31.5",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "neonctl": "^2.15.1",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
     "typescript": "^5",
