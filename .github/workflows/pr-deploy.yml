@@ -63,7 +63,7 @@ jobs:
 
       # Step 1: Create a Neon branch
       - name: Create Neon Branch
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        if: github.event.action == 'opened' || github.event.action == 'reopened'
         id: create_branch
         run: |
           bun neon branches create --name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}"
@@ -97,7 +97,8 @@ jobs:
           bun vercel deploy \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --scope "${{ steps.secrets.outputs.vercel_project_id }}" \
-            --yes
+            --yes \
+            --prod
 
       # Step 5: Post environment details to the PR
       - name: Post Environment Details to PR
