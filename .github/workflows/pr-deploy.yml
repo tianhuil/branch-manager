@@ -47,10 +47,18 @@ jobs:
         run: |
           echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
 
+          VERCEL_PROJECT_ID=$(bun dotenvx get VERCEL_PROJECT_ID -f .env.ci)
+          VERCEL_ORG_ID=$(bun dotenvx get VERCEL_ORG_ID -f .env.ci)
+          NEON_API_KEY=$(bun dotenvx get NEON_API_KEY -f .env.ci)
           VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN -f .env.ci)
 
+          echo "vercel_project_id=$VERCEL_PROJECT_ID" >> $GITHUB_OUTPUT
+          echo "vercel_org_id=$VERCEL_ORG_ID" >> $GITHUB_OUTPUT
+
           # For sensitive values, mask them in logs
+          echo "::add-mask::$NEON_API_KEY"
           echo "::add-mask::$VERCEL_TOKEN"
+          echo "neon_api_key=$NEON_API_KEY" >> $GITHUB_OUTPUT
           echo "vercel_token=$VERCEL_TOKEN" >> $GITHUB_OUTPUT
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
@@ -59,26 +67,23 @@ jobs:
       - name: Create Neon Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
-          bun dotenvx run -f .env.ci -- \
-            bun neon branches create \
-              --name "${{ github.head_ref }}"
-          bun dotenvx run -f .env.ci -- \
-            bun neon roles create \
-              --name "${{ github.head_ref }}" \
-              --branch "${{ github.head_ref }}"
-        env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          bun neon branches create \
+            --name "${{ github.head_ref }}" \
+            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+
+          bun neon roles create \
+            --name "${{ github.head_ref }}" \
+            --branch "${{ github.head_ref }}" \
+            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
 
       # Step 2: Get the URL
       - name: Get Neon Branch URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          DATABASE_URL=$(bun dotenvx run -f .env.ci --quiet -- bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}")
+          DATABASE_URL=$(bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
-        env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       # Step 2: Run Drizzle migrations
       - name: Run Drizzle Migrate
@@ -92,24 +97,25 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.db_url_step.outputs.db_url }}" | \
-            bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-              --token "${{ steps.secrets.outputs.vercel_token }}" \
-              --force
+          echo "${{ steps.db_url_step.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+            --token "${{ steps.secrets.outputs.vercel_token }}" \
+            --force
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
 
       # Step 4: Trigger a Vercel redeployment to use the new environment variable
       - name: Trigger Vercel Redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
-          bun dotenvx run -f .env.ci -- bun vercel deploy \
+          bun vercel deploy \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes \
             --prod
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
 
       # Step 5: Post environment details to the PR
       - name: Post Environment Details to PR
@@ -147,20 +153,22 @@ jobs:
         if: github.event.action == 'closed'
         run: |
           # Remove DATABASE_URL for the specific Git branch using Vercel CLI
-          bun dotenvx run -f .env.ci -- bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
+          bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes || echo "Environment variable not found or already deleted"
-        env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       # Step 7: Delete the Neon Branch
       - name: Delete Neon Branch
         if: github.event.action == 'closed'
         run: |
-          bun dotenvx run -f .env.ci -- bun neon roles delete --name "${{ github.head_ref }}" --branch "${{ github.head_ref }}" --api-key "$NEON_API_KEY"
-          bun dotenvx run -f .env.ci -- bun neon branches delete --name "${{ github.head_ref }}" --api-key "$NEON_API_KEY"
-        env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          bun neon roles delete \
+            --name "${{ github.head_ref }}" \
+            --branch "${{ github.head_ref }}" \
+            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+
+          bun neon branches delete \
+            --name "${{ github.head_ref }}" \
+            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
 
       # Step 8: Comment on PR Close
       - name: Comment on PR Close
