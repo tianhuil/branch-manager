@@ -98,11 +98,11 @@ jobs:
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
           echo "${{ steps.db_url_step.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+            --token "${{ steps.secrets.outputs.vercel_token }}" \
             --force
         env:
           VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
           VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
-          VERCEL_TOKEN: ${{ steps.secrets.outputs.vercel_token }}
 
       # Step 4: Trigger a Vercel redeployment to use the new environment variable
       - name: Trigger Vercel Redeployment
