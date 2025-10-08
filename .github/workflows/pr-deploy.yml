@@ -42,6 +42,19 @@ jobs:
       - name: Install dotenvx
         run: bun install
 
+      - name: Extract and output secrets
+        id: secrets
+        run: |
+          echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
+
+          VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN -f .env.ci)
+
+          # For sensitive values, mask them in logs
+          echo "::add-mask::$VERCEL_TOKEN"
+          echo "vercel_token=$VERCEL_TOKEN" >> $GITHUB_OUTPUT
+        env:
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+
       # Step 1: Create a Neon branch
       - name: Create Neon Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened'
@@ -79,10 +92,9 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          export VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN -f .env.ci)
           echo "${{ steps.db_url_step.outputs.db_url }}" | \
             bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-              --token "$VERCEL_TOKEN" \
+              --token ${{ steps.secrets.outputs.vercel_token }} \
               --force
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
@@ -93,6 +105,7 @@ jobs:
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun dotenvx run -f .env.ci -- bun vercel deploy \
+            --token ${{ steps.secrets.outputs.vercel_token }} \
             --yes \
             --prod
         env:
@@ -135,7 +148,7 @@ jobs:
         run: |
           # Remove DATABASE_URL for the specific Git branch using Vercel CLI
           bun dotenvx run -f .env.ci -- bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
-            --token "$VERCEL_TOKEN" \
+            --token ${{ steps.secrets.outputs.vercel_token }} \
             --yes || echo "Environment variable not found or already deleted"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
