@@ -19,10 +19,10 @@
 We use dotenvx for secrets management.
 
 - DO NOT ATTEMPT TO READ `.env.keys` WHICH CONTAIN THE SECRETS.
-- You can use dotenvx `dotenvx run -f .env.staging -- [script]` and `dotenvx run -f .env.produciton -- [script]` for staging and production secrets.
+- You can use dotenvx `dotenvx run -f .env.staging -- [script]` and `dotenvx run -f .env.production -- [script]` for staging and production secrets.
 - Development secrets are not encoded.
 
 ## Validation
 
 - Use `bun run typecheck && bun run check:fix` after each command and fix any errors. There may be errors in other files because another agent is working on those. Ignore those.
-- Use `bun test <test file I'm writing>` for unit testing; Only run tests affected by these chagnes on at the moment. Ignore all other test failures (don't try to fix them).
+- Use `bun test <test file I'm writing>` for unit testing; Only run tests affected by these changes on at the moment. Ignore all other test failures (don't try to fix them).

@@ -1,0 +1,27 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["vercel", "dotenvx", "neonctl", "neondatabase", "turbopack"],
+  "ignoreWords": [],
+  "files": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.json",
+    "**/*.md",
+    "**/*.yml",
+    "**/*.yaml",
+    "**/*.sh"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".next/**",
+    "coverage/**",
+    "*.min.js",
+    "*.min.css",
+    "tsconfig.tsbuildinfo"
+  ]
+}
