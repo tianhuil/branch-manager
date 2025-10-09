@@ -76,10 +76,9 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          set -o pipefail
           DATABASE_URL=$(bun dotenvx run -f .env.ci -- \
             bun run ./script/db-branch/index.ts preview url \
-            --branch-name "${{ github.head_ref }}" 2>&1)
+            --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
