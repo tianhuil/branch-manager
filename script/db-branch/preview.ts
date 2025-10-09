@@ -25,7 +25,7 @@ export class PreviewDatabase {
     const passwordSeed = processEnvOrThrow("DB_PASSWORD_SEED");
     return crypto
       .pbkdf2Sync(passwordSeed, this.branchName, 1000, 64, "sha512")
-      .toString("base64");
+      .toString("base64url");
   }
 
   get dbHost() {
