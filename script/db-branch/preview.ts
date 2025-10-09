@@ -5,12 +5,20 @@ import { processEnvOrThrow } from "./util";
 export class PreviewDatabase {
   constructor(public readonly branchName: string) {}
 
+  /**
+   * Sanitizes the branch name to contain only valid PostgreSQL identifier characters.
+   * Converts all characters that are not [a-zA-Z0-9_] to underscores.
+   */
+  private get sanitizedBranchName(): string {
+    return this.branchName.replace(/[^a-zA-Z0-9_]/g, "_");
+  }
+
   get dbName() {
-    return `preview-${this.branchName}`;
+    return `preview_${this.sanitizedBranchName}`;
   }
 
   get dbUser() {
-    return `preview-${this.branchName}`;
+    return `preview_${this.sanitizedBranchName}`;
   }
 
   get dbPassword(): string {
@@ -29,14 +37,28 @@ export class PreviewDatabase {
   }
 
   get databaseUrl() {
-    return getDatabaseUrl(this);
+    return getDatabaseUrl({
+      dbName: this.dbName,
+      dbUser: this.dbUser,
+      dbPassword: this.dbPassword,
+      dbHost: this.dbHost,
+    });
   }
 
   async create() {
-    await createDatabase(this);
+    await createDatabase({
+      dbName: this.dbName,
+      dbUser: this.dbUser,
+      dbPassword: this.dbPassword,
+      rootDatabaseUrl: this.rootDatabaseUrl,
+    });
   }
 
   async delete() {
-    await deleteDatabase(this);
+    await deleteDatabase({
+      dbName: this.dbName,
+      dbUser: this.dbUser,
+      rootDatabaseUrl: this.rootDatabaseUrl,
+    });
   }
 }
