@@ -1,7 +1,14 @@
 {
   "version": "0.2",
   "language": "en",
-  "words": ["vercel", "dotenvx", "neonctl", "neondatabase", "turbopack"],
+  "words": [
+    "vercel",
+    "dotenvx",
+    "neonctl",
+    "neondatabase",
+    "turbopack",
+    "psql"
+  ],
   "ignoreWords": [],
   "files": [
     "**/*.ts",
@@ -22,6 +29,7 @@
     "coverage/**",
     "*.min.js",
     "*.min.css",
-    "tsconfig.tsbuildinfo"
+    "tsconfig.tsbuildinfo",
+    "public/**/*.svg"
   ]
 }
