@@ -1,11 +1,11 @@
-import { getDb } from "@/lib/db/client";
+import { getDrizzle } from "@/lib/db/client";
 import { blog } from "@/lib/db/schema";
 
 /**
  * Load and print all blog rows from the database
  */
 const loadAndPrintBlogs = async (): Promise<void> => {
-  const db = getDb();
+  const db = getDrizzle();
   const rows = await db.select().from(blog);
 
   console.log(`Found ${rows.length} blog post(s):\n`);

@@ -4,12 +4,21 @@ import * as schema from "./schema";
 
 /**
  * Get database client
- * @returns Drizzle database client instance
+ * @returns neon connector
  */
-export const getDb = () => {
-  if (!process.env.DATABASE_URL) {
+export const getDB = (databaseUrl?: string) => {
+  const url = databaseUrl || process.env.DATABASE_URL;
+  if (!url) {
     throw new Error("DATABASE_URL is not set");
   }
-  const sql = neon(process.env.DATABASE_URL);
+  return neon(url);
+};
+
+/**
+ * Get drizzle database client
+ * @returns Drizzle database client instance
+ */
+export const getDrizzle = (databaseUrl?: string) => {
+  const sql = getDB(databaseUrl);
   return drizzle(sql, { schema });
 };
