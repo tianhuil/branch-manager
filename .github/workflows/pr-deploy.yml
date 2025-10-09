@@ -66,7 +66,7 @@ jobs:
       - name: Setup Database Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          bun dotenvx run -f .env.ci -- ./script/setup-db.sh
+          bun dotenvx run -f .env.ci -- ./script/setup-branch.sh
 
         env:
           BRANCH_NAME: ${{ github.head_ref }}
