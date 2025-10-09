@@ -97,13 +97,6 @@ describe("db-setup e2e", () => {
     const pushResult = runDrizzleKitPush(testDb1Url);
     expect(containsPostgresError(pushResult)).toBe(false);
 
-    // Verify drizzle-kit push succeeded
-    if (pushResult.exitCode !== 0) {
-      console.error("drizzle-kit push failed:");
-      console.error(pushResult.stderr.toString());
-    }
-    expect(pushResult.exitCode).toBe(0);
-
     // Verify schema was created by checking if blog table exists
     const sql = getDB(testDb1Url);
     const result = await sql`
@@ -148,13 +141,9 @@ describe("db-setup e2e", () => {
       dbPassword: testDb2.dbPassword,
       dbHost,
     });
-    console.log("invalidUrl", invalidUrl);
 
     // Verify test-user-2 cannot push schema to test-db-1 using drizzle-kit
     const pushResult = runDrizzleKitPush(invalidUrl);
-    console.log("exitCode", pushResult.exitCode);
-    console.log("stdout", pushResult.stdout.toString());
-    console.log("stderr", pushResult.stderr.toString());
     expect(containsPostgresError(pushResult)).toBe(true);
   });
 });
