@@ -79,8 +79,12 @@ jobs:
           DATABASE_URL=$(bun dotenvx run -f .env.ci -- \
             bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
-          echo "::add-mask::$DATABASE_URL"
-          echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
+          {
+            echo "::add-mask::$DATABASE_URL"
+          }
+          {
+            echo "db_url=$DATABASE_URL"
+          } >> "$GITHUB_OUTPUT"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
