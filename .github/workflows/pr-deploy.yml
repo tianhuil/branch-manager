@@ -76,7 +76,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          DATABASE_URL=$(bun dotenvx run -f .env.ci -- \
+          DATABASE_URL=$(bun dotenvx run --quiet -f .env.ci -- \
             bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
           {
