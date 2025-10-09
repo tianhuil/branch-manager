@@ -67,7 +67,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
           bun dotenvx run -f .env.ci -- \
-            bun ./script/db-branch/index.ts preview create \
+            bun run ./script/db-branch/index.ts preview create \
             --branch-name "${{ github.head_ref }}"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
@@ -77,7 +77,7 @@ jobs:
         id: db_url_step
         run: |
           DATABASE_URL=$(bun dotenvx run -f .env.ci -- \
-            bun ./script/db-branch/index.ts preview url \
+            bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
@@ -154,7 +154,7 @@ jobs:
         if: github.event.action == 'closed'
         run: |
           bun dotenvx run -f .env.ci -- \
-            bun ./script/db-branch/index.ts preview delete \
+            bun run ./script/db-branch/index.ts preview delete \
             --branch-name "${{ github.head_ref }}"
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
