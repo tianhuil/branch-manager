@@ -112,6 +112,7 @@ jobs:
           bun vercel deploy \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes \
+            --no-wait \
             --prod
         env:
           VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
