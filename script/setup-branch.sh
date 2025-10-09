@@ -20,7 +20,7 @@ neon branches create --name "$BRANCH_NAME" --api-key "$NEON_API_KEY"
 neon roles create --name "$BRANCH_NAME" --branch "$BRANCH_NAME" --api-key "$NEON_API_KEY"
 
 # Get the connection string for the database owner (default role)
-OWNER_CONNECTION_STRING=$(neon connection-string --branch "$BRANCH_NAME" --api-key "$NEON_API_KEY" --ssl require)
+OWNER_CONNECTION_STRING=$(neon connection-string --branch "$BRANCH_NAME" --api-key "$NEON_API_KEY" --role-name "$BRANCH_NAME" --ssl require)
 
 # Grant permissions to the new role
 echo "Granting permissions to role $BRANCH_NAME..."
