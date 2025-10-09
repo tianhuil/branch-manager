@@ -64,7 +64,7 @@ jobs:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Setup Database Branch
-        if: github.event.action == 'opened' || github.event.action == 'reopened'
+        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           bun dotenvx run -f .env.ci -- ./script/setup-db.sh
 

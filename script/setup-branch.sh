@@ -1,6 +1,7 @@
 #!/bin/bash
 
-
+# Continue on errors instead of exiting
+set +e
 
 # Validation function
 validate_env() {
