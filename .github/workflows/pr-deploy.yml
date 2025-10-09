@@ -1,18 +1,18 @@
-# This GitHub Action workflow automates the lifecycle of Neon database branches
+# This GitHub Action workflow automates the lifecycle of preview database branches
 # and syncs them with Vercel Preview Deployments for each pull request.
 #
 # On PR open/reopen/synchronize:
-# 1. A new Neon DB branch is created.
-# 2. Drizzle schema is migrated to the new branch.
+# 1. A new preview database is created.
+# 2. Drizzle schema is migrated to the new database.
 # 3. A branch-specific DATABASE_URL is set in Vercel.
 # 4. A Vercel redeployment is triggered to use the new variable.
 # 5. A comment is posted to the PR with environment details.
 #
 # On PR close/merge:
 # 1. The Vercel environment variable is removed.
-# 2. The Neon DB branch is deleted.
+# 2. The preview database is deleted.
 
-name: Neon & Vercel for PRs
+name: Preview Database & Vercel for PRs
 
 on:
   pull_request:
@@ -49,46 +49,40 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-
 
-      - name: Install dotenvx
+      - name: Install dependencies
         run: bun install
 
-      - name: Extract and output secrets
+      - name: Extract Vercel token
         id: secrets
         run: |
           echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
 
-          VERCEL_PROJECT_ID=$(bun dotenvx get VERCEL_PROJECT_ID -f .env.ci)
-          VERCEL_ORG_ID=$(bun dotenvx get VERCEL_ORG_ID -f .env.ci)
-          NEON_API_KEY=$(bun dotenvx get NEON_API_KEY -f .env.ci)
           VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN -f .env.ci)
-
-          echo "vercel_project_id=$VERCEL_PROJECT_ID" >> $GITHUB_OUTPUT
-          echo "vercel_org_id=$VERCEL_ORG_ID" >> $GITHUB_OUTPUT
-
-          # For sensitive values, mask them in logs
-          echo "::add-mask::$NEON_API_KEY"
           echo "::add-mask::$VERCEL_TOKEN"
-          echo "neon_api_key=$NEON_API_KEY" >> $GITHUB_OUTPUT
           echo "vercel_token=$VERCEL_TOKEN" >> $GITHUB_OUTPUT
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Setup Database Branch
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+      - name: Create Preview Database
+        if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
-          bun dotenvx run -f .env.ci -- ./script/setup-branch.sh
-
+          bun dotenvx run -f .env.ci -- \
+            bun ./script/db-branch/index.ts preview create \
+            --branch-name "${{ github.head_ref }}"
         env:
-          BRANCH_NAME: ${{ github.head_ref }}
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Get Neon Branch URL
+      - name: Get Preview Database URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          DATABASE_URL=$(bun neon connection-string --branch "${{ github.head_ref }}" --role-name "${{ github.head_ref }}" --api-key "${{ steps.secrets.outputs.neon_api_key }}")
+          DATABASE_URL=$(bun dotenvx run -f .env.ci -- \
+            bun ./script/db-branch/index.ts preview url \
+            --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
+        env:
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
@@ -100,25 +94,26 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.db_url_step.outputs.db_url }}" | bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-            --token "${{ steps.secrets.outputs.vercel_token }}" \
-            --force
+          echo "${{ steps.db_url_step.outputs.db_url }}" | \
+            bun dotenvx run -f .env.ci -- \
+              bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+              --token "${{ steps.secrets.outputs.vercel_token }}" \
+              --force
         env:
-          VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
-          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Trigger Vercel Redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
-          bun vercel deploy \
+          bun dotenvx run -f .env.ci -- \
+            bun vercel deploy \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes \
             --no-wait \
             --prod
         env:
-          VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
-          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       # Step 5: Post environment details to the PR
       - name: Post Environment Details to PR
@@ -129,9 +124,9 @@ jobs:
             const branchName = `${{ github.head_ref }}`;
 
             const body = `
-            ### 🌿 Neon Database & Vercel Deployed
+            ### 🌿 Preview Database & Vercel Deployed
 
-            A new database branch has been created and a Vercel preview deployment for \`${branchName}\` has been triggered.
+            A new preview database has been created and a Vercel preview deployment for \`${branchName}\` has been triggered.
             `;
 
             await github.rest.issues.createComment({
@@ -147,21 +142,22 @@ jobs:
         if: github.event.action == 'closed'
         run: |
           # Remove DATABASE_URL for the specific Git branch using Vercel CLI
-          bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
+          bun dotenvx run -f .env.ci -- \
+            bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.vercel_token }}" \
-            --yes || echo "Environment variable not found or already deleted"
+            --yes \
+            || echo "Environment variable not found or already deleted"
+        env:
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Delete Neon Branch
+      - name: Delete Preview Database
         if: github.event.action == 'closed'
         run: |
-          bun neon roles delete \
-            --name "${{ github.head_ref }}" \
-            --branch "${{ github.head_ref }}" \
-            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
-
-          bun neon branches delete \
-            --name "${{ github.head_ref }}" \
-            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+          bun dotenvx run -f .env.ci -- \
+            bun ./script/db-branch/index.ts preview delete \
+            --branch-name "${{ github.head_ref }}"
+        env:
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Comment on PR Close
         if: github.event.action == 'closed'
@@ -169,7 +165,7 @@ jobs:
         with:
           script: |
             const branchName = `${{ github.head_ref }}`;
-            const body = `### 🌿 Vercel & Neon Cleanup Complete\n\nThe Vercel environment variable has been removed and the Neon database branch \`${branchName}\` has been deleted.`;
+            const body = `### 🌿 Vercel & Preview Database Cleanup Complete\n\nThe Vercel environment variable has been removed and the preview database for \`${branchName}\` has been deleted.`;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
