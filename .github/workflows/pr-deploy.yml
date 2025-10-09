@@ -63,20 +63,15 @@ jobs:
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      # Step 1: Create a Neon branch
-      - name: Create Neon Branch
+      - name: Setup Database Branch
         if: github.event.action == 'opened' || github.event.action == 'reopened'
         run: |
-          bun neon branches create \
-            --name "${{ github.head_ref }}" \
-            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+          bun dotenvx run -f .env.ci -- ./script/setup-db.sh
 
-          bun neon roles create \
-            --name "${{ github.head_ref }}" \
-            --branch "${{ github.head_ref }}" \
-            --api-key "${{ steps.secrets.outputs.neon_api_key }}"
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      # Step 2: Get the URL
       - name: Get Neon Branch URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
@@ -85,14 +80,12 @@ jobs:
           echo "::add-mask::$DATABASE_URL"
           echo "db_url=$DATABASE_URL" >> $GITHUB_OUTPUT
 
-      # Step 2: Run Drizzle migrations
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: bun drizzle-kit push
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.db_url }}
 
-      # Step 3: Set Vercel Environment Variable for the Preview branch
       - name: Set Vercel Preview Environment Variable
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
@@ -104,7 +97,6 @@ jobs:
           VERCEL_ORG_ID: ${{ steps.secrets.outputs.vercel_org_id }}
           VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.vercel_project_id }}
 
-      # Step 4: Trigger a Vercel redeployment to use the new environment variable
       - name: Trigger Vercel Redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
@@ -124,22 +116,14 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const proxyUrl = `${{ steps.db_url_step.outputs.db_url }}`;
-            const webAccessUrl = `${{ steps.db_url_step.outputs.db_web_access_url }}`;
+            const branchName = `${{ github.head_ref }}`;
 
             const body = `
-            ### 🌿 Neon Database & Vercel Preview Ready
+            ### 🌿 Neon Database & Vercel Deployed
 
-            A new database branch has been created and a Vercel preview deployment has been triggered.
-
-            **Neon DB Connection URL:**
-            \`\`\`
-            ${proxyUrl}
-            \`\`\`
-            *This URL has been set as the \`DATABASE_URL\` for the Vercel deployment.*
-
-            [View DB Branch in Neon Console](${webAccessUrl})
+            A new database branch has been created and a Vercel preview deployment for \`${branchName}\` has been triggered.
             `;
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -149,7 +133,6 @@ jobs:
 
       # --- Cleanup Steps on PR Close ---
 
-      # Step 6: Remove the Vercel Environment Variable
       - name: Remove Vercel Preview Environment Variable
         if: github.event.action == 'closed'
         run: |
@@ -158,7 +141,6 @@ jobs:
             --token "${{ steps.secrets.outputs.vercel_token }}" \
             --yes || echo "Environment variable not found or already deleted"
 
-      # Step 7: Delete the Neon Branch
       - name: Delete Neon Branch
         if: github.event.action == 'closed'
         run: |
@@ -171,7 +153,6 @@ jobs:
             --name "${{ github.head_ref }}" \
             --api-key "${{ steps.secrets.outputs.neon_api_key }}"
 
-      # Step 8: Comment on PR Close
       - name: Comment on PR Close
         if: github.event.action == 'closed'
         uses: actions/github-script@v7
