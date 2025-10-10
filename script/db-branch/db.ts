@@ -46,7 +46,7 @@ export const createDatabase = async ({
 
   logger.info("Creating user...");
   await sql.query(
-    `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`,
+    `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
   );
 
   logger.info("Creating database...");
