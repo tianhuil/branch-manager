@@ -198,7 +198,6 @@ const previewCommand = program
 interface PreviewCreateOptions {
   branchName?: string;
   dbPasswordSeed?: string;
-  dbHost?: string;
   rootDatabaseUrl?: string;
 }
 
@@ -213,7 +212,6 @@ previewCommand
     "--db-password-seed <seed>",
     "Password seed (overrides DB_PASSWORD_SEED env var)"
   )
-  .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .option(
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
@@ -223,9 +221,6 @@ previewCommand
       // Set environment variables from options if provided
       if (options.dbPasswordSeed) {
         process.env.DB_PASSWORD_SEED = options.dbPasswordSeed;
-      }
-      if (options.dbHost) {
-        process.env.DB_HOST = options.dbHost;
       }
       if (options.rootDatabaseUrl) {
         process.env.ROOT_DATABASE_URL = options.rootDatabaseUrl;
@@ -251,7 +246,6 @@ previewCommand
 interface PreviewDeleteOptions {
   branchName?: string;
   dbPasswordSeed?: string;
-  dbHost?: string;
   rootDatabaseUrl?: string;
 }
 
@@ -266,7 +260,6 @@ previewCommand
     "--db-password-seed <seed>",
     "Password seed (overrides DB_PASSWORD_SEED env var)"
   )
-  .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .option(
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
@@ -276,9 +269,6 @@ previewCommand
       // Set environment variables from options if provided
       if (options.dbPasswordSeed) {
         process.env.DB_PASSWORD_SEED = options.dbPasswordSeed;
-      }
-      if (options.dbHost) {
-        process.env.DB_HOST = options.dbHost;
       }
       if (options.rootDatabaseUrl) {
         process.env.ROOT_DATABASE_URL = options.rootDatabaseUrl;
