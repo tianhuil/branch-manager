@@ -80,26 +80,20 @@ jobs:
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Create Preview Database
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
-        run: |
-          bun run ./script/db-branch/index.ts preview create \
-            --branch-name "${{ github.head_ref }}"
-        env:
-          DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
-          ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
-
-      - name: Get Preview Database URL
+      - name: Create Preview Database and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
+          bun run ./script/db-branch/index.ts preview create \
+            --branch-name "${{ github.head_ref }}"
+
           DATABASE_URL=$(bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
-          DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
+          ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
@@ -107,7 +101,7 @@ jobs:
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.db_url }}
 
-      - name: Set Vercel Preview Environment Variable
+      - name: Update Preview Database URL and trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
@@ -115,13 +109,7 @@ jobs:
             bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
             --force
-        env:
-          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
-          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
-      - name: Trigger Vercel Redeployment
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
-        run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun vercel deploy \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
@@ -132,7 +120,6 @@ jobs:
           VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
           VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
-      # Step 5: Post environment details to the PR
       - name: Post Environment Details to PR
         if: github.event.action == 'opened'
         uses: actions/github-script@v7
