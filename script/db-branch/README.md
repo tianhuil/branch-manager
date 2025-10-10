@@ -37,19 +37,19 @@ This is a low-level API. It is useful for setting up permanent environments (e.g
 ```bash
 # Create database with explicit credentials
 bm db create \
-  --db-name mydb \
-  --db-user myuser \
-  --db-password mypass
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass
 
 # Get connection URL
 bm db url \
-  --db-name mydb \
-  --db-user myuser \
-  --db-password mypass \
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass \
   --db-host db.example.com
 
 # Delete database
-bm db delete --db-name mydb --db-user myuser
+bm db delete --db-name my-db --db-user my-user
 ```
 
 Here, you can specify the password, user, and database name manually for greater control and security.
