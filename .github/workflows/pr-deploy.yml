@@ -99,13 +99,13 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: bun drizzle-kit push
         env:
-          DATABASE_URL: ${{ steps.db_url_step.outputs.db_url }}
+          DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
       - name: Update Preview Database URL and trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.db_url_step.outputs.db_url }}" | \
+          echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
             bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
             --force
