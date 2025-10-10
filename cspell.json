@@ -9,7 +9,9 @@
     "turbopack",
     "psql",
     "rolname",
-    "datname"
+    "datname",
+    "usename",
+    "sslmode"
   ],
   "ignoreWords": [],
   "files": [
