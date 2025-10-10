@@ -11,7 +11,9 @@
     "rolname",
     "datname",
     "usename",
-    "sslmode"
+    "sslmode",
+    "bunx",
+    "logomark"
   ],
   "ignoreWords": [],
   "files": [
@@ -33,7 +35,7 @@
     "coverage/**",
     "*.min.js",
     "*.min.css",
-    "tsconfig.tsbuildinfo",
+    "*.tsbuildinfo",
     "public/**/*.svg"
   ]
 }

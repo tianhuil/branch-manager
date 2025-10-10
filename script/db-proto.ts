@@ -1,5 +1,5 @@
-import { getDrizzle } from "@/lib/db/client";
-import { blog } from "@/lib/db/schema";
+import { getDrizzle } from "@/web/lib/db/client";
+import { blog } from "@/web/lib/db/schema";
 
 /**
  * Load and print all blog rows from the database

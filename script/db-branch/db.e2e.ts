@@ -1,5 +1,5 @@
-import { getDrizzle } from "@/lib/db/client";
-import * as schema from "@/lib/db/schema";
+import { getDrizzle } from "@/web/lib/db/client";
+import * as schema from "@/web/lib/db/schema";
 import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";

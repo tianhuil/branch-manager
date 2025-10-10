@@ -1,41 +1,307 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# @neon-prototype/db-branch
 
-## Getting Started
+A lightweight database branch manager for PostgreSQL that creates isolated preview databases for Git branches in CI/CD pipelines.
 
-First, run the development server:
+## Features
+
+- ✅ **No New Abstractions** - Creates plain PostgreSQL databases, no vendor lock-in
+- 🔒 **Automatic Permissions** - Creates users with proper role-based permissions
+- 🔑 **Deterministic Credentials** - Stateless password generation from a single seed
+- 🌿 **Git Branch Mapping** - Automatically maps Git branches to databases
+- 🚀 **CI/CD Ready** - Perfect for Vercel preview deployments and GitHub Actions
+- 💻 **CLI & Programmatic API** - Use as a command-line tool or import as a library
+
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# With bun
+bun add @neon-prototype/db-branch
+
+# With npm
+npm install @neon-prototype/db-branch
+
+# With yarn
+yarn add @neon-prototype/db-branch
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### As a CLI Tool
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Create a preview database for the current Git branch
+bm preview create
 
-## Learn More
+# Get the database connection URL
+bm preview url --branch-name feat/new-feature
 
-To learn more about Next.js, take a look at the following resources:
+# Delete a preview database
+bm preview delete --branch-name feat/new-feature
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### As a Library
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```typescript
+import { PreviewDatabase } from "@neon-prototype/db-branch";
 
-## Deploy on Vercel
+// Create a preview database
+const preview = new PreviewDatabase("feat/new-feature");
+await preview.create();
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+// Get the connection URL
+console.log(preview.databaseUrl);
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+// Delete the database
+await preview.delete();
+```
 
-## Keys
+## CLI Commands
 
-To get your `NEON_API_KEY`, go to https://console.neon.tech/app/org-rapid-dream-14108333/settings
-To get your `VERCEL_TOKEN`, go to https://vercel.com/account/settings/tokens and create a time-bounded one
+### `bm preview` - Branch-specific databases (recommended)
+
+Automatically creates databases tied to Git branches with pseudo-random segregated credentials.
+
+```bash
+# Create for current branch (auto-detected from git)
+bm preview create
+
+# Create for specific branch
+bm preview create --branch-name feat/new-feature
+
+# Get connection URL
+bm preview url --branch-name feat/new-feature
+
+# Delete preview database
+bm preview delete --branch-name feat/new-feature
+```
+
+**Required Environment Variables:**
+
+- `DB_PASSWORD_SEED` - A secret seed for deterministic password generation
+- `DB_HOST` - PostgreSQL host
+- `ROOT_DATABASE_URL` - Admin connection URL for creating databases
+
+### `bm db` - Direct database operations (advanced)
+
+Low-level API for setting up permanent environments (staging, production, etc.).
+
+```bash
+# Create database with explicit credentials
+bm db create \
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass \
+  --root-database-url postgresql://admin:pass@host/postgres
+
+# Get connection URL
+bm db url \
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass \
+  --db-host db.example.com
+
+# Delete database and user
+bm db delete \
+  --db-name my-db \
+  --db-user my-user \
+  --root-database-url postgresql://admin:pass@host/postgres
+```
+
+## Programmatic API
+
+### PreviewDatabase
+
+```typescript
+import { PreviewDatabase } from "@neon-prototype/db-branch";
+
+// Environment variables required:
+// - DB_PASSWORD_SEED
+// - DB_HOST
+// - ROOT_DATABASE_URL
+
+const preview = new PreviewDatabase("feat/my-feature");
+
+// Properties
+preview.dbName; // "preview_feat_my_feature"
+preview.dbUser; // "preview_feat_my_feature"
+preview.dbPassword; // Deterministically generated
+preview.databaseUrl; // Full PostgreSQL connection URL
+
+// Methods
+await preview.create(); // Create database and user
+await preview.delete(); // Delete database and user
+```
+
+### Direct Database Functions
+
+```typescript
+import {
+  createDatabase,
+  deleteDatabase,
+  getDatabaseUrl,
+} from "@neon-prototype/db-branch/db";
+
+// Create a database
+await createDatabase({
+  dbName: "my_database",
+  dbUser: "my_user",
+  dbPassword: "secure_password",
+  rootDatabaseUrl: "postgresql://admin:pass@host/postgres",
+});
+
+// Delete a database
+await deleteDatabase({
+  dbName: "my_database",
+  dbUser: "my_user",
+  rootDatabaseUrl: "postgresql://admin:pass@host/postgres",
+});
+
+// Generate connection URL
+const url = getDatabaseUrl({
+  dbName: "my_database",
+  dbUser: "my_user",
+  dbPassword: "secure_password",
+  dbHost: "db.example.com",
+});
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+name: Deploy Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Create preview database
+        env:
+          DB_PASSWORD_SEED: ${{ secrets.DB_PASSWORD_SEED }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          ROOT_DATABASE_URL: ${{ secrets.ROOT_DATABASE_URL }}
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: bunx db-branch preview create
+
+      - name: Get database URL
+        id: db
+        env:
+          DB_PASSWORD_SEED: ${{ secrets.DB_PASSWORD_SEED }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          URL=$(bunx db-branch preview url --branch-name ${{ github.head_ref }})
+          echo "DATABASE_URL=$URL" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Vercel
+        env:
+          DATABASE_URL: ${{ steps.db.outputs.DATABASE_URL }}
+        run: vercel deploy --build-env DATABASE_URL="$DATABASE_URL"
+```
+
+### Vercel Integration
+
+Add to your `vercel.json`:
+
+```json
+{
+  "buildCommand": "bunx db-branch preview create && bun run build",
+  "env": {
+    "DB_PASSWORD_SEED": "@db-password-seed",
+    "DB_HOST": "@db-host",
+    "ROOT_DATABASE_URL": "@root-database-url"
+  }
+}
+```
+
+## How It Works
+
+### Deterministic Password Generation
+
+Instead of storing passwords for every branch database, we use a single secret `DB_PASSWORD_SEED` to deterministically generate passwords:
+
+```typescript
+// Pseudo-code
+password = PBKDF2(
+  password: DB_PASSWORD_SEED,
+  salt: branchName,
+  iterations: 1000,
+  keyLength: 64,
+  digest: 'sha512'
+).toString('base64url');
+```
+
+This means:
+
+- ✅ Same branch always gets the same password
+- ✅ No need to store passwords anywhere
+- ✅ CI pipelines can recreate credentials across jobs
+- ✅ Secure (one-way function, password seed never exposed)
+
+### Database Isolation
+
+Each preview database gets:
+
+1. A dedicated PostgreSQL database
+2. A dedicated user (role) with the same name
+3. Permissions isolated to that database only
+4. Automatic schema privileges (USAGE, CREATE on public schema)
+
+## Security Considerations
+
+- Keep `DB_PASSWORD_SEED` secret and rotate it periodically
+- Use `ROOT_DATABASE_URL` with a PostgreSQL superuser that can create databases/users
+- Consider using connection pooling for production workloads
+- Preview databases use SSL with channel binding by default
+
+## Architecture
+
+```text
+┌─────────────────┐
+│  CLI (index.ts) │  Command-line interface
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  preview.ts     │  Git branch → Database mapping
+│                 │  Deterministic credential generation
+└────────┬────────┘
+         │ uses
+         ▼
+┌─────────────────┐
+│    db.ts        │  PostgreSQL database creation/deletion
+│                 │  User management & permissions
+└────────┬────────┘
+         │
+         ▼
+    PostgreSQL
+```
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions are welcome! Please open an issue or pull request.
+
+## Credits
+
+Built with:
+
+- [commander](https://github.com/tj/commander.js) - CLI framework
+- [@neondatabase/serverless](https://github.com/neondatabase/serverless) - PostgreSQL driver
+- [pino](https://github.com/pinojs/pino) - Logging

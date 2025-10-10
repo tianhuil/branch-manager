@@ -1,0 +1,38 @@
+# Source files
+src/
+tsconfig.build.json
+
+# Test files
+**/*.test.ts
+**/*.e2e.ts
+script/
+
+# Web app (demo)
+web/
+.next/
+next-env.d.ts
+
+# Development files
+.env*
+!.env.example
+.dotenvx/
+
+# Build artifacts
+node_modules/
+bun.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Misc
+AGENTS.md
+deploy.sh
+vercel.json
+
