@@ -2,6 +2,15 @@ import crypto from "crypto";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { processEnvOrThrow } from "./util";
 
+/**
+ * In CI/CD, we need isolated databases for each Git branch, but:
+ * - Storing passwords for every branch database doesn't scale
+ * - Random passwords need to be persisted somewhere
+ * - CI pipelines need to access the same database across different jobs
+ *
+ * We solve this using a pseudo-random but deterministic password generation
+ * algorithm based on a single secret password seed.  This is secure and stateless.
+ */
 export class PreviewDatabase {
   constructor(public readonly branchName: string) {}
 
@@ -21,10 +30,15 @@ export class PreviewDatabase {
     return `preview_${this.sanitizedBranchName}`;
   }
 
+  /**
+   * Pseudo-random but deterministic password generation algorithm based on a
+   * single fixed password seed.
+   * Encoded in base64url to be URL-safe.
+   */
   get dbPassword(): string {
     const passwordSeed = processEnvOrThrow("DB_PASSWORD_SEED");
     return crypto
-      .pbkdf2Sync(passwordSeed, this.branchName, 1000, 64, "sha512")
+      .pbkdf2Sync(passwordSeed, this.sanitizedBranchName, 1000, 64, "sha512")
       .toString("base64url");
   }
 

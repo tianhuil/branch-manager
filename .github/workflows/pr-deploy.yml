@@ -52,6 +52,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      # consider adding a step to stop this if there is no DB change (i.e. we continue using the staging DB).
+
       - name: Extract secrets
         id: secrets
         run: |
@@ -97,7 +99,9 @@ jobs:
 
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
-        run: bun drizzle-kit push
+        run: |
+          bun drizzle-kit push
+          # Also can run DB seed code here..
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 

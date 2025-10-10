@@ -15,6 +15,7 @@ interface CreateDatabaseParams {
 
 /**
  * Set up a PostgreSQL database by creating a user and database with appropriate privileges.
+ * Operation is idempotent and will only create the user or database if they do not already exist.
  *
  * @param params - Database setup parameters
  */
@@ -37,6 +38,7 @@ export const createDatabase = async ({
 
   if (!(userExists[0]?.exists as boolean)) {
     logger.info("Creating user...");
+    // Doubles single quotes to prevent SQL injection
     await sql.query(
       `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
     );
@@ -61,6 +63,7 @@ export const createDatabase = async ({
   await sql.query(`GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO ${dbUser}`);
 
   logger.info("Granting schema privileges...");
+  // Schema permissions must be granted while connected to the target database, not from the admin database.
   const dbSql = getDB(rootDatabaseUrl.replace(/\/[^/]*$/, `/${dbName}`));
 
   await dbSql.query(`GRANT USAGE ON SCHEMA public TO ${dbUser}`);
@@ -93,6 +96,7 @@ export const deleteDatabase = async ({
 
   logger.info({ dbName, dbUser }, "Deleting database");
 
+  // PostgreSQL refuses to drop a database with active connections.
   logger.info("Terminating existing connections...");
   await sql`
     SELECT pg_terminate_backend(pg_stat_activity.pid)
