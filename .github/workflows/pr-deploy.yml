@@ -52,32 +52,48 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Extract Vercel token
+      - name: Extract secrets
         id: secrets
         run: |
           echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
 
-          VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN --quiet -f .env.ci)
+          VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN --quiet -f .env.ci -f .env)
           echo "::add-mask::$VERCEL_TOKEN"
           echo "VERCEL_TOKEN=$VERCEL_TOKEN" >> $GITHUB_OUTPUT
+
+          VERCEL_PROJECT_ID=$(bun dotenvx get VERCEL_PROJECT_ID --quiet -f .env.ci -f .env)
+          echo "VERCEL_PROJECT_ID=$VERCEL_PROJECT_ID" >> $GITHUB_OUTPUT
+
+          VERCEL_ORG_ID=$(bun dotenvx get VERCEL_ORG_ID --quiet -f .env.ci -f .env)
+          echo "VERCEL_ORG_ID=$VERCEL_ORG_ID" >> $GITHUB_OUTPUT
+
+          DB_PASSWORD_SEED=$(bun dotenvx get DB_PASSWORD_SEED --quiet -f .env.ci -f .env)
+          echo "::add-mask::$DB_PASSWORD_SEED"
+          echo "DB_PASSWORD_SEED=$DB_PASSWORD_SEED" >> $GITHUB_OUTPUT
+
+          DB_HOST=$(bun dotenvx get DB_HOST --quiet -f .env.ci -f .env)
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_OUTPUT
+
+          ROOT_DATABASE_URL=$(bun dotenvx get ROOT_DATABASE_URL --quiet -f .env.ci -f .env)
+          echo "::add-mask::$ROOT_DATABASE_URL"
+          echo "ROOT_DATABASE_URL=$ROOT_DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Create Preview Database
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          bun dotenvx run -f .env.ci -- \
-            bun run ./script/db-branch/index.ts preview create \
+          bun run ./script/db-branch/index.ts preview create \
             --branch-name "${{ github.head_ref }}"
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
+          ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Get Preview Database URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          DATABASE_URL=$(bun dotenvx run --quiet -f .env.ci -- \
-            bun run ./script/db-branch/index.ts preview url \
+          DATABASE_URL=$(bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
           {
             echo "::add-mask::$DATABASE_URL"
@@ -86,7 +102,8 @@ jobs:
             echo "db_url=$DATABASE_URL"
           } >> "$GITHUB_OUTPUT"
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
+          DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
 
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
@@ -99,25 +116,25 @@ jobs:
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
           echo "${{ steps.db_url_step.outputs.db_url }}" | \
-            bun dotenvx run -f .env.ci -- \
-              bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-              --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
-              --force
+            bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+            --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
+            --force
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
       - name: Trigger Vercel Redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
-          bun dotenvx run -f .env.ci -- \
-            bun vercel deploy \
+          bun vercel deploy \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
             --yes \
             --no-wait \
             --prod
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
       # Step 5: Post environment details to the PR
       - name: Post Environment Details to PR
@@ -146,22 +163,22 @@ jobs:
         if: github.event.action == 'closed'
         run: |
           # Remove DATABASE_URL for the specific Git branch using Vercel CLI
-          bun dotenvx run -f .env.ci -- \
-            bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
+          bun vercel env rm DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
             --yes \
             || echo "Environment variable not found or already deleted"
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
       - name: Delete Preview Database
         if: github.event.action == 'closed'
         run: |
-          bun dotenvx run -f .env.ci -- \
-            bun run ./script/db-branch/index.ts preview delete \
+          bun run ./script/db-branch/index.ts preview delete \
             --branch-name "${{ github.head_ref }}"
         env:
-          DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+          DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
+          ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Comment on PR Close
         if: github.event.action == 'closed'
