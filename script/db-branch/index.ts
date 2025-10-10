@@ -5,12 +5,12 @@ import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { createLogger } from "./logger";
 import { PreviewDatabase } from "./preview";
 
-const logger = createLogger("db-branch");
+const logger = createLogger("bm");
 
 const program = new Command();
 
 program
-  .name("db-branch")
+  .name("Branch Manager")
   .description("CLI for managing database branches and preview databases")
   .version("1.0.0");
 
