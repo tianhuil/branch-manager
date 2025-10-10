@@ -95,12 +95,8 @@ jobs:
         run: |
           DATABASE_URL=$(bun run ./script/db-branch/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
-          {
-            echo "::add-mask::$DATABASE_URL"
-          }
-          {
-            echo "db_url=$DATABASE_URL"
-          } >> "$GITHUB_OUTPUT"
+          echo "::add-mask::$DATABASE_URL"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
           DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
