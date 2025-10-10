@@ -2,12 +2,12 @@
 
 ## Motivation
 
-Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple "db branches".
+Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple **"DB branches"**.
 
-Branch Manager is a lightweight alternative to fancy **branches** provided by vendors like [Neon](https://neon.com/) or [Planetscale](https://planetscale.com/). It has two advantages:
+Branch Manager is a lightweight alternative to fancy **branches** provided by vendors like [Neon](https://neon.com/) or [PlanetScale](https://planetscale.com/). It has two advantages:
 
-- Vendor branches are a new "branch" abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
-- While Vendor tools help you to create user (aka roles), granting the right permissions is up to you. Branch Manager automatically creates user and roles with permissions isolated to your branch DB.
+- Vendor branches are a new abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
+- While Vendor tools help you to create user (aka roles), it doesn't help grant the right permissions for those roles. Branch Manager automatically creates user and roles with permissions isolated to your DB branch.
 
 ## Cli Overview
 
