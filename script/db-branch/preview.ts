@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db-setup";
+import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { processEnvOrThrow } from "./util";
 
 export class PreviewDatabase {

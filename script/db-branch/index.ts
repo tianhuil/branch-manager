@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import { execSync } from "child_process";
 import { Command } from "commander";
-import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db-setup";
+import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { createLogger } from "./logger";
 import { PreviewDatabase } from "./preview";
 
@@ -39,33 +39,33 @@ dbCommand
   .option("--db-user <user>", "Database user (overrides DB_USER env var)")
   .option(
     "--db-password <password>",
-    "Database password (overrides DB_PASSWORD env var)",
+    "Database password (overrides DB_PASSWORD env var)"
   )
   .option(
     "--root-database-url <url>",
-    "Root database URL (overrides ROOT_DATABASE_URL env var)",
+    "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: DbCreateOptions) => {
     try {
       const dbName = validateOption(
         options.dbName,
         process.env.DB_NAME,
-        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)"
       );
       const dbUser = validateOption(
         options.dbUser,
         process.env.DB_USER,
-        "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
+        "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)"
       );
       const dbPassword = validateOption(
         options.dbPassword,
         process.env.DB_PASSWORD,
-        "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
+        "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)"
       );
       const rootDatabaseUrl = validateOption(
         options.rootDatabaseUrl,
         process.env.ROOT_DATABASE_URL,
-        "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
+        "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
       );
 
       await createDatabase({
@@ -95,23 +95,23 @@ dbCommand
   .option("--db-name <name>", "Database name (overrides DB_NAME env var)")
   .option(
     "--db-user <user>",
-    "Database user to delete (overrides DB_USER env var, optional)",
+    "Database user to delete (overrides DB_USER env var, optional)"
   )
   .option(
     "--root-database-url <url>",
-    "Root database URL (overrides ROOT_DATABASE_URL env var)",
+    "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: DbDeleteOptions) => {
     try {
       const dbName = validateOption(
         options.dbName,
         process.env.DB_NAME,
-        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)"
       );
       const rootDatabaseUrl = validateOption(
         options.rootDatabaseUrl,
         process.env.ROOT_DATABASE_URL,
-        "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
+        "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
       );
       const dbUser = options.dbUser || process.env.DB_USER;
 
@@ -143,7 +143,7 @@ dbCommand
   .option("--db-user <user>", "Database user (overrides DB_USER env var)")
   .option(
     "--db-password <password>",
-    "Database password (overrides DB_PASSWORD env var)",
+    "Database password (overrides DB_PASSWORD env var)"
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .action((options: DbUrlOptions) => {
@@ -151,22 +151,22 @@ dbCommand
       const dbName = validateOption(
         options.dbName,
         process.env.DB_NAME,
-        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)"
       );
       const dbUser = validateOption(
         options.dbUser,
         process.env.DB_USER,
-        "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
+        "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)"
       );
       const dbPassword = validateOption(
         options.dbPassword,
         process.env.DB_PASSWORD,
-        "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
+        "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)"
       );
       const dbHost = validateOption(
         options.dbHost,
         process.env.DB_HOST,
-        "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)",
+        "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)"
       );
 
       console.log({ dbName, dbUser, dbPassword, dbHost });
@@ -207,16 +207,16 @@ previewCommand
   .description("Create a preview database for a branch")
   .option(
     "--branch-name <name>",
-    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)",
+    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)"
   )
   .option(
     "--db-password-seed <seed>",
-    "Password seed (overrides DB_PASSWORD_SEED env var)",
+    "Password seed (overrides DB_PASSWORD_SEED env var)"
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .option(
     "--root-database-url <url>",
-    "Root database URL (overrides ROOT_DATABASE_URL env var)",
+    "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewCreateOptions) => {
     try {
@@ -234,7 +234,7 @@ previewCommand
       const branchName = validateOption(
         options.branchName || process.env.BRANCH_NAME,
         getCurrentGitBranch(),
-        "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)",
+        "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)"
       );
 
       const preview = new PreviewDatabase(branchName);
@@ -260,16 +260,16 @@ previewCommand
   .description("Delete a preview database for a branch")
   .option(
     "--branch-name <name>",
-    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)",
+    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)"
   )
   .option(
     "--db-password-seed <seed>",
-    "Password seed (overrides DB_PASSWORD_SEED env var)",
+    "Password seed (overrides DB_PASSWORD_SEED env var)"
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .option(
     "--root-database-url <url>",
-    "Root database URL (overrides ROOT_DATABASE_URL env var)",
+    "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewDeleteOptions) => {
     try {
@@ -287,7 +287,7 @@ previewCommand
       const branchName = validateOption(
         options.branchName || process.env.BRANCH_NAME,
         getCurrentGitBranch(),
-        "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)",
+        "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)"
       );
 
       const preview = new PreviewDatabase(branchName);
@@ -312,11 +312,11 @@ previewCommand
   .description("Get the database connection URL for a preview database")
   .requiredOption(
     "--branch-name <name>",
-    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)",
+    "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)"
   )
   .option(
     "--db-password-seed <seed>",
-    "Password seed (overrides DB_PASSWORD_SEED env var)",
+    "Password seed (overrides DB_PASSWORD_SEED env var)"
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .action((options: PreviewUrlOptions) => {
@@ -330,7 +330,7 @@ previewCommand
       }
       if (!options.branchName) {
         throw new Error(
-          "Missing branch name (provide via --branch-name option)",
+          "Missing branch name (provide via --branch-name option)"
         );
       }
 
@@ -357,7 +357,7 @@ previewCommand
 const validateOption = (
   option: string | undefined,
   processEnv: string | undefined,
-  error: string,
+  error: string
 ): string => {
   const value = option || processEnv;
   if (!value) {
