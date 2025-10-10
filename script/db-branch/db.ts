@@ -29,28 +29,33 @@ export const createDatabase = async ({
 
   logger.info({ dbName, dbUser }, "Setting up database");
 
-  logger.info("Terminating existing connections...");
-  await sql`
-    SELECT pg_terminate_backend(pg_stat_activity.pid)
-    FROM pg_stat_activity
-    WHERE pg_stat_activity.datname = ${dbName}
-      AND pid <> pg_backend_pid()
+  // Check if user exists
+  logger.info("Checking if user exists...");
+  const userExists = await sql`
+    SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname = ${dbUser}) as exists
   `;
 
-  logger.info("Dropping existing database if it exists...");
-  // Note: We need to use raw SQL for DROP DATABASE as it doesn't support parameters
-  await sql.query(`DROP DATABASE IF EXISTS ${dbName}`);
+  if (!(userExists[0]?.exists as boolean)) {
+    logger.info("Creating user...");
+    await sql.query(
+      `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
+    );
+  } else {
+    logger.info("User already exists, skipping user creation");
+  }
 
-  logger.info("Dropping existing user if it exists...");
-  await sql.query(`DROP USER IF EXISTS ${dbUser}`);
+  // Check if database exists
+  logger.info("Checking if database exists...");
+  const dbExists = await sql`
+    SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = ${dbName}) as exists
+  `;
 
-  logger.info("Creating user...");
-  await sql.query(
-    `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
-  );
-
-  logger.info("Creating database...");
-  await sql.query(`CREATE DATABASE ${dbName}`);
+  if (!(dbExists[0]?.exists as boolean)) {
+    logger.info("Creating database...");
+    await sql.query(`CREATE DATABASE ${dbName}`);
+  } else {
+    logger.info("Database already exists, skipping database creation");
+  }
 
   logger.info("Granting database privileges...");
   await sql.query(`GRANT ALL PRIVILEGES ON DATABASE ${dbName} TO ${dbUser}`);
