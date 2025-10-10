@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "::add-mask::$DOTENV_PRIVATE_KEY_CI"
 
-          VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN -f .env.ci)
+          VERCEL_TOKEN=$(bun dotenvx get VERCEL_TOKEN --quiet -f .env.ci)
           echo "::add-mask::$VERCEL_TOKEN"
           echo "vercel_token=$VERCEL_TOKEN" >> $GITHUB_OUTPUT
         env:
