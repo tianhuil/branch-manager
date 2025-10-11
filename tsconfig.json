@@ -19,6 +19,7 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }
@@ -27,6 +28,7 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "script/**/*.ts",
+    "test/**/*.ts",
     "web/**/*.ts",
     "web/**/*.tsx",
     ".next/types/**/*.ts"
