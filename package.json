@@ -40,7 +40,7 @@
     "build": "tsc --project tsconfig.build.json",
     "prepublishOnly": "bun run build",
     "test": "bun test",
-    "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./script/**/*.e2e.ts",
+    "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./test/**/*.e2e.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier .",

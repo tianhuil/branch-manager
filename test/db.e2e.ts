@@ -1,9 +1,9 @@
+import { createDatabase, deleteDatabase, getDatabaseUrl } from "@/src/db";
+import { getDB, processEnvOrThrow } from "@/src/util";
 import { getDrizzle } from "@/web/lib/db/client";
 import * as schema from "@/web/lib/db/schema";
 import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
-import { getDB, processEnvOrThrow } from "./util";
 
 /**
  * Run drizzle-kit push with the specified database URL.

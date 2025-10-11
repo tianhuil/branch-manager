@@ -1,5 +1,8 @@
 import { getDrizzle } from "@/web/lib/db/client";
 import { blog } from "@/web/lib/db/schema";
+// Example: You can also use the package directly
+// import { createDatabase } from "@/src/db";
+// import { PreviewDatabase } from "@/src/preview";
 
 /**
  * Load and print all blog rows from the database
