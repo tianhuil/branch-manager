@@ -39,6 +39,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "prepublishOnly": "bun run build",
+    "cli": "bun src/index.ts",
     "test": "bun test",
     "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./test/**/*.e2e.ts",
     "lint": "eslint",
