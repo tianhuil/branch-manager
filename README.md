@@ -2,18 +2,6 @@
 
 [![CI](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml)
 
-## Install
-
-### Install from GitHub (Bun)
-
-```bash
-# Install the package
-bun add github:tianhuil/neon-prototype
-
-# Run the CLI
-bunx --bun github:tianhuil/neon-prototype/src bm preview --help
-```
-
 ## Motivation
 
 Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple **"DB branches"**.
@@ -22,6 +10,21 @@ Branch Manager is a lightweight alternative to fancy **branches** provided by ve
 
 - Vendor branches are a new abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
 - While Vendor tools help you to create user (aka roles), it doesn't help grant the right permissions for those roles. Branch Manager automatically creates user and roles with permissions isolated to your DB branch.
+
+## Install
+
+### Install from GitHub (Bun)
+
+```bash
+# Install the package
+bun add github:tianhuil/neon-prototype
+
+# Run the CLI from the repo root
+bun run bm -- preview --help
+
+# Or run directly from GitHub
+bunx --bun github:tianhuil/neon-prototype/src bm preview --help
+```
 
 ## Cli Overview
 
