@@ -1,6 +1,6 @@
 # Database Branch Manager - Core Logic
 
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml)
 
 ## Motivation
 
