@@ -96,6 +96,7 @@ jobs:
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
           ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
+          DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
 
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
