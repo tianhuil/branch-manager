@@ -12,8 +12,10 @@
     "start": "cd web && bun run start",
     "test": "bun test",
     "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./src/**/*.e2e.ts",
-    "lint": "(cd src && bun run lint) && (cd web && bun run lint)",
-    "lint:fix": "(cd src && bun run lint:fix) && (cd web && bun run lint:fix)",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "lint:workspaces": "(cd src && bun run lint) && (cd web && bun run lint)",
+    "lint:workspaces:fix": "(cd src && bun run lint:fix) && (cd web && bun run lint:fix)",
     "format": "prettier .",
     "format:fix": "prettier --write .",
     "typecheck": "(cd src && bun run typecheck) && (cd web && bun run typecheck)",
@@ -25,8 +27,11 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
+    "@eslint/js": "^9.37.0",
     "cspell": "^9.2.1",
+    "eslint": "^9.37.0",
     "prettier": "^3.6.2",
+    "typescript-eslint": "^8.46.0",
     "vercel": "^48.2.8"
   }
 }

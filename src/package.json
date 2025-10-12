@@ -19,8 +19,8 @@
     "test:e2e": "bun test ./**/*.e2e.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "lint": "echo 'No linting configured for src package'",
-    "lint:fix": "echo 'No linting configured for src package'"
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "keywords": [
     "database",
