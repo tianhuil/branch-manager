@@ -1,41 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Database Branch Manager - Core Logic
 
-## Getting Started
+## Motivation
 
-First, run the development server:
+Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple **"DB branches"**.
+
+Branch Manager is a lightweight alternative to fancy **branches** provided by vendors like [Neon](https://neon.com/) or [PlanetScale](https://planetscale.com/). It has two advantages:
+
+- Vendor branches are a new abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
+- While Vendor tools help you to create user (aka roles), it doesn't help grant the right permissions for those roles. Branch Manager automatically creates user and roles with permissions isolated to your DB branch.
+
+## Cli Overview
+
+Branch Manager (`bm`) provides two command groups:
+
+### `bm preview` - Branch-specific databases (recommended)
+
+Automatically creates databases tied to Git branches with pseudo-random segregated credentials. It is meant for preview branches that are generated on the fly and ephemeral.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Create for specific branch
+bm preview create --branch-name feat/new-feature
+
+# Get connection URL for a branch
+bm preview url --branch-name feat/new-feature
+
+# Delete preview database
+bm preview delete --branch-name feat/new-feature
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For these, you supply a random but fixed `--db-password-seed` which cryptographically creates a pseudo-random password based on the branch name. This prevents
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### `bm db` - Direct database operations (advanced)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This is a low-level API. It is useful for setting up permanent environments (e.g. staging, canary, production, testing, qa) with with segregated credentials.
 
-## Learn More
+```bash
+# Create database with explicit credentials
+bm db create \
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass
 
-To learn more about Next.js, take a look at the following resources:
+# Get connection URL
+bm db url \
+  --db-name my-db \
+  --db-user my-user \
+  --db-password my-pass \
+  --db-host db.example.com
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Delete database
+bm db delete --db-name my-db --db-user my-user
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Here, you can specify the password, user, and database name manually for greater control and security.
 
-## Deploy on Vercel
+### Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Keys
-
-To get your `NEON_API_KEY`, go to https://console.neon.tech/app/org-rapid-dream-14108333/settings
-To get your `VERCEL_TOKEN`, go to https://vercel.com/account/settings/tokens and create a time-bounded one
+```text
+┌─────────────┐
+│  preview.ts │  Git branch → Database mapping
+│             │  Deterministic credential generation
+└──────┬──────┘
+       │ uses
+       ▼
+┌─────────────┐
+│   db.ts     │  PostgreSQL database creation/deletion
+│             │  User management & permissions
+└──────┬──────┘
+       │
+       ▼
+   PostgreSQL
+```
