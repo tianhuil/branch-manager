@@ -13,7 +13,9 @@
     "datname",
     "usename",
     "sslmode",
-    "evenodd"
+    "evenodd",
+    "bunx",
+    "tianhuil"
   ],
   "ignoreWords": [],
   "files": [
