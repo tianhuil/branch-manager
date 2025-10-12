@@ -1,5 +1,5 @@
 {
-  "name": "@db-branch/web",
+  "name": "@tianhuil/branch-manager-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -21,7 +21,7 @@
     "db:studio": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit studio"
   },
   "dependencies": {
-    "@db-branch/core": "workspace:*",
+    "@tianhuil/branch-manager": "workspace:*",
     "@neondatabase/serverless": "^1.0.2",
     "drizzle-orm": "^0.44.6",
     "next": "15.5.4",

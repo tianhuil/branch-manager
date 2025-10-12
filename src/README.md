@@ -5,7 +5,7 @@ This is the core package for the Database Branch Manager (`bm`) CLI tool.
 ## Installation
 
 ```bash
-bun install @db-branch/core
+bun install @tianhuil/branch-manager
 ```
 
 ## Usage

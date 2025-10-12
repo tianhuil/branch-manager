@@ -111,7 +111,7 @@ Here, you can specify the password, user, and database name manually for greater
 
 This is a **bun workspaces monorepo** with two packages:
 
-### `src/` - Core Package (`@db-branch/core`)
+### `src/` - Core Package (`@tianhuil/branch-manager`)
 
 The publishable npm package containing the database branch manager CLI tool. Includes the `bm` command-line interface, database operations (`db.ts`), preview database management (`preview.ts`), and utility functions. This package can be installed independently in any project.
 

@@ -1,5 +1,5 @@
 {
-  "name": "@db-branch/core",
+  "name": "@tianhuil/branch-manager",
   "version": "1.0.0",
   "description": "Database branch manager for PostgreSQL - lightweight alternative to vendor-specific branching",
   "type": "module",

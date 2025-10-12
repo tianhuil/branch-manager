@@ -6,14 +6,14 @@ This document summarizes the major refactoring that transformed this codebase in
 
 The codebase has been reorganized from a single Next.js application with embedded scripts into a **bun workspaces monorepo** with two distinct packages:
 
-1. **`src/`** - The publishable `@db-branch/core` npm package
+1. **`src/`** - The publishable `@tianhuil/branch-manager` npm package
 2. **`web/`** - The Next.js web application for testing
 
 ## Structure
 
 ```
 neon-prototype/
-├── src/                          # @db-branch/core package
+├── src/                          # @tianhuil/branch-manager package
 │   ├── index.ts                  # CLI entry point (bm command)
 │   ├── db.ts                     # Database operations
 │   ├── preview.ts                # Preview database management
@@ -50,7 +50,7 @@ neon-prototype/
 
 - **`src/` (formerly `script/db-branch/`)**
   - Now a standalone, publishable npm package
-  - Name: `@db-branch/core`
+  - Name: `@tianhuil/branch-manager`
   - CLI command: `bm` (Branch Manager)
   - Can be published to npm for use in other projects
   - Includes its own `package.json`, `tsconfig.json`, and tests
@@ -155,7 +155,7 @@ The following were moved or consolidated:
    - Web app (`web/`) is for testing and demonstration
 
 2. **Publishable Package**
-   - `src/` can be published to npm as `@db-branch/core`
+   - `src/` can be published to npm as `@tianhuil/branch-manager`
    - Other projects can install and use the `bm` CLI
 
 3. **Better Development Experience**
@@ -208,6 +208,6 @@ bun run typecheck
 Consider these potential improvements:
 
 - Add `turborepo` for better caching (currently using simpler bun workspaces)
-- Publish `@db-branch/core` to npm registry
+- Publish `@tianhuil/branch-manager` to npm registry
 - Add more comprehensive tests
 - Create separate deployment workflows for each package
