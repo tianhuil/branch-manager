@@ -7,11 +7,13 @@
     "neonctl",
     "neondatabase",
     "turbopack",
+    "turborepo",
     "psql",
     "rolname",
     "datname",
     "usename",
-    "sslmode"
+    "sslmode",
+    "evenodd"
   ],
   "ignoreWords": [],
   "files": [

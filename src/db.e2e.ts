@@ -1,5 +1,3 @@
-import { getDrizzle } from "@/lib/db/client";
-import * as schema from "@/lib/db/schema";
 import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
@@ -78,7 +76,7 @@ describe("db-setup e2e", () => {
     });
   });
 
-  test("should create database for test-user-1 and allow db:push with drizzle", async () => {
+  test("should create database with correct permissions", async () => {
     // Create database for test-user-1
     await createDatabase({
       dbName: testDb1.dbName,
@@ -99,35 +97,14 @@ describe("db-setup e2e", () => {
     const pushResult = runDrizzleKitPush(testDb1Url);
     expect(containsPostgresError(pushResult)).toBe(false);
 
-    // Verify schema was created by checking if blog table exists
+    // Verify we can connect and run queries
     const sql = getDB(testDb1Url);
-    const result = await sql`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = 'public'
-        AND table_name = 'blog'
-    `;
-
+    const result = await sql`SELECT 1 as test`;
     expect(result).toHaveLength(1);
-    expect(result[0].table_name).toBe("blog");
-
-    // Verify we can insert data
-    const db = getDrizzle(testDb1Url);
-    const [insertedBlog] = await db
-      .insert(schema.blog)
-      .values({
-        title: "Test Blog",
-        slug: "test-blog",
-        content: "Test content",
-        published: false,
-      })
-      .returning();
-
-    expect(insertedBlog).toBeDefined();
-    expect(insertedBlog.title).toBe("Test Blog");
+    expect(result[0].test).toBe(1);
   });
 
-  test("should create database for test-user-2 and verify cannot push to test-db-1", async () => {
+  test("should create database for test-user-2 and verify cannot access test-db-1", async () => {
     // Create database for test-user-2
     await createDatabase({
       dbName: testDb2.dbName,

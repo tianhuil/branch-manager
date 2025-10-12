@@ -86,10 +86,10 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          bun run ./script/db-branch/index.ts preview create \
+          bun run ./src/index.ts preview create \
             --branch-name "${{ github.head_ref }}"
 
-          DATABASE_URL=$(bun run ./script/db-branch/index.ts preview url \
+          DATABASE_URL=$(bun run ./src/index.ts preview url \
             --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
@@ -100,6 +100,7 @@ jobs:
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
+          cd web
           bun drizzle-kit push
           # Also can run DB seed code here..
         env:
@@ -161,7 +162,7 @@ jobs:
       - name: Delete Preview Database
         if: github.event.action == 'closed'
         run: |
-          bun run ./script/db-branch/index.ts preview delete \
+          bun run ./src/index.ts preview delete \
             --branch-name "${{ github.head_ref }}"
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}

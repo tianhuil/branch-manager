@@ -1,6 +1,6 @@
 {
-  "$schema": "https://openapi.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": false
-  }
+  "buildCommand": "cd web && bun install && bun run build",
+  "devCommand": "cd web && bun run dev",
+  "installCommand": "bun install",
+  "outputDirectory": "web/.next"
 }

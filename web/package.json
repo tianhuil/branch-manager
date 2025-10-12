@@ -1,0 +1,45 @@
+{
+  "name": "@db-branch/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotenvx run -f .env.development -f .env -- next dev --turbopack",
+    "build": "dotenvx run -f .env.$VERCEL_ENV -f .env -- next build --turbopack",
+    "start": "dotenvx run -f .env.$VERCEL_ENV -f .env -- next start",
+    "test": "bun test",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier .",
+    "format:fix": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "check": "eslint && prettier . && tsc --noEmit",
+    "check:fix": "eslint --fix && prettier --write .",
+    "db:psql": "dotenvx run -f .env.$VERCEL_ENV -f .env -- sh -c 'psql $DATABASE_URL'",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit migrate",
+    "db:push": "dotenvx run -f .env.development -f .env -- drizzle-kit push",
+    "db:studio": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "drizzle-orm": "^0.44.6",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.51.0",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.5",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "eslint-plugin-boundaries": "^5.0.2",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

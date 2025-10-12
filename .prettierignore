@@ -1,32 +1,22 @@
 # Dependencies
-node_modules/
-bun.lock
+node_modules
+.pnp
+.pnp.*
 
 # Build outputs
-.next/
-out/
-dist/
-build/
+.next
+out
+build
+dist
 
 # Misc
 .DS_Store
-*.log
+*.tsbuildinfo
 
-# TypeScript
-tsconfig.tsbuildinfo
-
-# Environment files - ignore all .env variants
+# Env files
 .env*
-
-# Database
-*.db
-*.sqlite
-
-# Drizzle
-lib/db/migrations/
-
-# Public assets
-public/
-
-# Config files that should not be formatted
-next-env.d.ts
+!.env.staging
+!.env.production
+!.env.development
+!.env.ci
+!.env
