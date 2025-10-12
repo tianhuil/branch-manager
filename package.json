@@ -16,7 +16,7 @@
     "lint:fix": "eslint --fix .",
     "lint:workspaces": "(cd src && bun run lint) && (cd web && bun run lint)",
     "lint:workspaces:fix": "(cd src && bun run lint:fix) && (cd web && bun run lint:fix)",
-    "format": "prettier .",
+    "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "typecheck": "(cd src && bun run typecheck) && (cd web && bun run typecheck)",
     "spell": "cspell \"**/*\"",
