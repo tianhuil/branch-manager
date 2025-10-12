@@ -21,6 +21,7 @@
     "db:studio": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit studio"
   },
   "dependencies": {
+    "@db-branch/core": "workspace:*",
     "@neondatabase/serverless": "^1.0.2",
     "drizzle-orm": "^0.44.6",
     "next": "15.5.4",

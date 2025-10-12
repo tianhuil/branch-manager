@@ -86,10 +86,10 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          bun run ./src/index.ts preview create \
+          bun bm preview create \
             --branch-name "${{ github.head_ref }}"
 
-          DATABASE_URL=$(bun run ./src/index.ts preview url \
+          DATABASE_URL=$(bun bm preview url \
             --branch-name "${{ github.head_ref }}")
           echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
@@ -162,7 +162,7 @@ jobs:
       - name: Delete Preview Database
         if: github.event.action == 'closed'
         run: |
-          bun run ./src/index.ts preview delete \
+          bun bm preview delete \
             --branch-name "${{ github.head_ref }}"
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
