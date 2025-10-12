@@ -12,6 +12,7 @@
     "build:src": "cd src && bun run build",
     "build:web": "cd web && bun run build",
     "start": "cd web && bun run start",
+    "prepare": "cd src && bun run build",
     "test": "bun test",
     "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./src/**/*.e2e.ts",
     "lint": "eslint .",
