@@ -1,5 +1,7 @@
 # Database Branch Manager - Core Logic
 
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+
 ## Motivation
 
 Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple **"DB branches"**.
