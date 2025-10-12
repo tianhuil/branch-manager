@@ -20,7 +20,11 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "check": "eslint && prettier --check . && tsc --noEmit",
+    "check:fix": "eslint --fix && prettier --write ."
   },
   "keywords": [
     "database",
