@@ -2,6 +2,18 @@
 
 [![CI](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml)
 
+## Install
+
+### Install from GitHub (Bun)
+
+```bash
+# Install the package
+bun add github:tianhuil/neon-prototype
+
+# Run the CLI
+bunx --bun github:tianhuil/neon-prototype/src bm preview --help
+```
+
 ## Motivation
 
 Vercel accelerates development by creating an independent branch app per pull request on Github. However, if the branch has an updated SQL database schema, the code on the branch app will fail. Branch Manager aims to automate creating of simple **"DB branches"**.
