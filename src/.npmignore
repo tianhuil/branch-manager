@@ -1,0 +1,23 @@
+# Source files (only ship compiled JS)
+*.ts
+!*.d.ts
+
+# Test files
+*.e2e.*
+*.test.*
+*.spec.*
+__tests__/
+
+# Config files
+tsconfig.json
+tsconfig.tsbuildinfo
+eslint.config.mjs
+.prettierrc
+
+# Build artifacts
+*.map
+
+# Development
+node_modules/
+.DS_Store
+.env*

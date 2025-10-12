@@ -13,17 +13,35 @@ Branch Manager is a lightweight alternative to fancy **branches** provided by ve
 
 ## Install
 
-### Install from GitHub (Bun)
+### Install from GitHub
+
+Choose your preferred package manager:
 
 ```bash
-# Install the package
+# Bun
 bun add github:tianhuil/neon-prototype
 
-# Run the CLI from the repo root
-bun run bm -- preview --help
+# npm
+npm install github:tianhuil/neon-prototype
 
-# Or run directly from GitHub
-bunx --bun github:tianhuil/neon-prototype/src bm preview --help
+# yarn
+yarn add github:tianhuil/neon-prototype
+
+# pnpm
+pnpm add github:tianhuil/neon-prototype
+```
+
+### Run the CLI
+
+After installation:
+
+```bash
+# Run from node_modules
+npx bm preview --help
+
+# Or run directly from GitHub without installing
+npx github:tianhuil/neon-prototype bm preview --help
+bunx --bun github:tianhuil/neon-prototype bm preview --help
 ```
 
 ## Cli Overview
