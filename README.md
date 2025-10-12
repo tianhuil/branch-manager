@@ -71,3 +71,15 @@ Here, you can specify the password, user, and database name manually for greater
        ▼
    PostgreSQL
 ```
+
+## Code Structure
+
+This is a **bun workspaces monorepo** with two packages:
+
+### `src/` - Core Package (`@db-branch/core`)
+
+The publishable npm package containing the database branch manager CLI tool. Includes the `bm` command-line interface, database operations (`db.ts`), preview database management (`preview.ts`), and utility functions. This package can be installed independently in any project.
+
+### `web/` - Test Application
+
+A Next.js application used for testing and demonstrating the database branch manager. Contains a sample database schema with Drizzle ORM and serves as a real-world integration test environment. Each PR automatically gets its own preview database via GitHub Actions (see `.github/workflows/pr-deploy.yml` for more).
