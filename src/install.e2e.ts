@@ -39,6 +39,41 @@ const isBmOutput = (output: string): boolean => {
   );
 };
 
+/**
+ * Package manager configuration for tests
+ */
+interface PackageManagerConfig {
+  name: string;
+  initCommand: string;
+  installCommand: (tarballPath: string) => string;
+}
+
+/**
+ * Package managers to test
+ */
+const packageManagers: PackageManagerConfig[] = [
+  {
+    name: "bun",
+    initCommand: "bun init -y",
+    installCommand: (tarballPath: string) => `bun add ${tarballPath}`,
+  },
+  {
+    name: "npm",
+    initCommand: "npm init -y",
+    installCommand: (tarballPath: string) => `npm install ${tarballPath}`,
+  },
+  {
+    name: "yarn",
+    initCommand: "yarn init -y",
+    installCommand: (tarballPath: string) => `yarn add file:${tarballPath}`,
+  },
+  {
+    name: "pnpm",
+    initCommand: "pnpm init",
+    installCommand: (tarballPath: string) => `pnpm add ${tarballPath}`,
+  },
+];
+
 beforeAll(() => {
   // Create the tarball
   const packResult = runCommand("bun run pack");
@@ -57,104 +92,29 @@ beforeAll(() => {
 });
 
 describe("Package Installation E2E Tests", () => {
-  /**
-   * Test installation with bun
-   */
-  test("bun install works", () => {
-    const testDir = join(tmpdir(), `test-install-bun-${Date.now()}`);
+  test.each(packageManagers)(
+    "$name install works",
+    ({ name, initCommand, installCommand }) => {
+      const testDir = join(tmpdir(), `test-install-${name}-${Date.now()}`);
 
-    try {
-      // Create test directory and initialize
-      runCommand(`mkdir -p ${testDir}`);
-      const initResult = runCommand("bun init -y", testDir);
-      expect(initResult.exitCode).toBe(0);
+      try {
+        // Create test directory and initialize
+        runCommand(`mkdir -p ${testDir}`);
+        const initResult = runCommand(initCommand, testDir);
+        expect(initResult.exitCode).toBe(0);
 
-      // Install the package
-      const installResult = runCommand(`bun add ${tarballPath}`, testDir);
-      expect(installResult.exitCode).toBe(0);
+        // Install the package
+        const installResult = runCommand(installCommand(tarballPath), testDir);
+        expect(installResult.exitCode).toBe(0);
 
-      // Test that the CLI works
-      const cliResult = runCommand("npx bm --help", testDir);
-      expect(isBmOutput(cliResult.stdout.toString())).toBe(true);
-    } finally {
-      // Cleanup
-      runCommand(`rm -rf ${testDir}`);
+        // Test that the CLI works
+        const cliResult = runCommand("npx bm --help", testDir);
+        const output = cliResult.stdout.toString();
+        expect(isBmOutput(output)).toBe(true);
+      } finally {
+        // Cleanup
+        runCommand(`rm -rf ${testDir}`);
+      }
     }
-  });
-
-  /**
-   * Test installation with npm
-   */
-  test("npm install works", () => {
-    const testDir = join(tmpdir(), `test-install-npm-${Date.now()}`);
-
-    try {
-      // Create test directory and initialize
-      runCommand(`mkdir -p ${testDir}`);
-      const initResult = runCommand("npm init -y", testDir);
-      expect(initResult.exitCode).toBe(0);
-
-      // Install the package
-      const installResult = runCommand(`npm install ${tarballPath}`, testDir);
-      expect(installResult.exitCode).toBe(0);
-
-      // Test that the CLI works
-      const cliResult = runCommand("npx bm --help", testDir);
-      expect(isBmOutput(cliResult.stdout.toString())).toBe(true);
-    } finally {
-      // Cleanup
-      runCommand(`rm -rf ${testDir}`);
-    }
-  });
-
-  /**
-   * Test installation with yarn
-   */
-  test("yarn install works", () => {
-    const testDir = join(tmpdir(), `test-install-yarn-${Date.now()}`);
-
-    try {
-      // Create test directory and initialize
-      runCommand(`mkdir -p ${testDir}`);
-      const initResult = runCommand("yarn init -y", testDir);
-      expect(initResult.exitCode).toBe(0);
-
-      // Install the package
-      const installResult = runCommand(`yarn add file:${tarballPath}`, testDir);
-      expect(installResult.exitCode).toBe(0);
-
-      // Test that the CLI works
-      const cliResult = runCommand("npx bm --help", testDir);
-      expect(isBmOutput(cliResult.stdout.toString())).toBe(true);
-    } finally {
-      // Cleanup
-      runCommand(`rm -rf ${testDir}`);
-    }
-  });
-
-  /**
-   * Test installation with pnpm
-   */
-  test("pnpm install works", () => {
-    const testDir = join(tmpdir(), `test-install-pnpm-${Date.now()}`);
-
-    try {
-      // Create test directory and initialize
-      runCommand(`mkdir -p ${testDir}`);
-      const initResult = runCommand("pnpm init", testDir);
-      expect(initResult.exitCode).toBe(0);
-
-      // Install the package
-      const installResult = runCommand(`pnpm add ${tarballPath}`, testDir);
-      expect(installResult.exitCode).toBe(0);
-
-      // Test that the CLI works
-      const cliResult = runCommand("npx bm --help", testDir);
-      const output = cliResult.stdout.toString();
-      expect(isBmOutput(output)).toBe(true);
-    } finally {
-      // Cleanup
-      runCommand(`rm -rf ${testDir}`);
-    }
-  });
+  );
 });
