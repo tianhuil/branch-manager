@@ -6,9 +6,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "dotenvx run -f .env.development -f .env -- next dev --turbopack",
-    "build": "dotenvx run -f .env.$VERCEL_ENV -f .env -- next build --turbopack",
-    "start": "dotenvx run -f .env.$VERCEL_ENV -f .env -- next start",
+    "dev": "dotenvx run -f ../.env.development -f ../.env -- next dev --turbopack",
+    "build": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- next build --turbopack",
+    "start": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- next start",
     "test": "bun test",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
