@@ -42,11 +42,11 @@
     "web"
   ],
   "scripts": {
-    "dev": "cd web && bun run dev",
-    "build": "(cd src && bun run build) && (cd web && bun run build)",
-    "build:src": "cd src && bun run build",
-    "build:web": "cd web && bun run build",
-    "start": "cd web && bun run start",
+    "dev": "bun --cwd web run dev",
+    "build": "bun run build:src && bun run build:web",
+    "build:src": "bun --cwd src run build",
+    "build:web": "bun --cwd web run build",
+    "start": "bun --cwd web run start",
     "prepare": "bun run build:src",
     "prepack": "bun run prepare",
     "pack": "bun pm pack --destination pack/",
@@ -63,7 +63,7 @@
     "spell:fix": "cspell \"**/*\" --no-progress --no-summary",
     "check": "bun run lint && bun run format && bun run typecheck && bun run spell",
     "check:fix": "bun run lint:fix && bun run format:fix && bun run spell:fix",
-    "bm": "cd src && bun run index.ts"
+    "bm": "bun --cwd src run index.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
