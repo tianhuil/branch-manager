@@ -17,11 +17,11 @@
     "typecheck": "tsc --noEmit",
     "check": "eslint && prettier --check . && tsc --noEmit",
     "check:fix": "eslint --fix && prettier --write .",
-    "db:psql": "dotenvx run -f .env.$VERCEL_ENV -f .env -- sh -c 'psql $DATABASE_URL'",
+    "db:psql": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- sh -c 'psql $DATABASE_URL'",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit migrate",
-    "db:push": "dotenvx run -f .env.development -f .env -- drizzle-kit push",
-    "db:studio": "dotenvx run -f .env.$VERCEL_ENV -f .env -- drizzle-kit studio"
+    "db:migrate": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- drizzle-kit migrate",
+    "db:push": "dotenvx run -f ../.env.development -f ../.env -- drizzle-kit push",
+    "db:studio": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- drizzle-kit studio"
   },
   "dependencies": {
     "@tianhuil/branch-manager": "workspace:*",
