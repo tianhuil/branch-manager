@@ -9,4 +9,5 @@ export default defineConfig({
   outDir: "../dist",
   shims: true,
   splitting: false,
+  publicDir: "public",
 });
