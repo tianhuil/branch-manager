@@ -58,19 +58,7 @@ jobs:
           sudo apt-get install -y expect
 
       - name: Run drizzle push with expect
-        run: |
-          #!/usr/bin/expect -f
-          spawn bash -c "bun drizzle-kit push --verbose --strict"
-          expect {
-              -re ".*" {
-                  puts "Exited with code 1"
-                  exit 1
-              }
-              eof {
-                  puts "Exited with code 0"
-                  exit 0
-              }
-          }
+        run: ./src/check-schema-changed.sh
 
       - name: Extract secrets
         id: secrets
