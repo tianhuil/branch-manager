@@ -53,7 +53,7 @@ jobs:
         run: bun install
 
       - name: Test
-        run: bun drizzle-kit push --verbose --strict
+        run: bun --cwd web drizzle-kit push --verbose --strict
 
       - name: Install expect
         run: |
