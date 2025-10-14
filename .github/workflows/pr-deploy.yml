@@ -52,17 +52,6 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Test
-        run: bun --cwd web drizzle-kit push --verbose --strict
-
-      - name: Install expect
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y expect
-
-      - name: Run drizzle push with expect
-        run: chmod +x ./src/check-schema-changed.sh; ./src/check-schema-changed.sh
-
       - name: Extract secrets
         id: secrets
         run: |
@@ -90,6 +79,9 @@ jobs:
           echo "ROOT_DATABASE_URL=$ROOT_DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
+
+      - name: Test
+        run: bun --cwd web drizzle-kit push --verbose --strict
 
       - name: Create Preview Database and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
