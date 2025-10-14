@@ -52,6 +52,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Test
+        run: bun drizzle-kit push --verbose --strict
+
       - name: Install expect
         run: |
           sudo apt-get update -y
