@@ -52,7 +52,23 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      # consider adding a step to stop this if there is no DB change (i.e. we continue using the staging DB).
+      - name: Install expect
+        run: sudo apt-get install -y expect
+
+      - name: Run drizzle push with expect
+        run: |
+          #!/usr/bin/expect -f
+          spawn bash -c "bun drizzle-kit push --verbose --strict"
+          expect {
+              -re ".*" {
+                  puts "Exited with code 1"
+                  exit 1
+              }
+              eof {
+                  puts "Exited with code 0"
+                  exit 0
+              }
+          }
 
       - name: Extract secrets
         id: secrets
