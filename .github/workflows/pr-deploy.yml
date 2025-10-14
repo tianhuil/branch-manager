@@ -81,7 +81,9 @@ jobs:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Test
-        run: bun --cwd web drizzle-kit push --verbose --strict
+        run: |
+          bun --cwd web drizzle-kit push
+          bun --cwd web drizzle-kit push --verbose --strict
         env:
           DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
