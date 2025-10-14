@@ -8,6 +8,13 @@
       "when": 1759937595748,
       "tag": "0000_perfect_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760486213282,
+      "tag": "0001_dazzling_vanisher",
+      "breakpoints": true
     }
   ]
 }
