@@ -82,6 +82,8 @@ jobs:
 
       - name: Test
         run: bun --cwd web drizzle-kit push --verbose --strict
+        env:
+          DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Create Preview Database and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
