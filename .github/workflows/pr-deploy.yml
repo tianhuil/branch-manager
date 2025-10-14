@@ -53,7 +53,9 @@ jobs:
         run: bun install
 
       - name: Install expect
-        run: sudo apt-get install -y expect
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y expect
 
       - name: Run drizzle push with expect
         run: |
