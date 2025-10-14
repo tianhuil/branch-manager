@@ -58,7 +58,7 @@ jobs:
           sudo apt-get install -y expect
 
       - name: Run drizzle push with expect
-        run: ./src/check-schema-changed.sh
+        run: chmod +x ./src/check-schema-changed.sh; ./src/check-schema-changed.sh
 
       - name: Extract secrets
         id: secrets
