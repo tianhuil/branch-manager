@@ -80,40 +80,42 @@ jobs:
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Test
-        run: bun --cwd web drizzle-kit push --verbose --strict
-        id: run_script
+      - name: Check if the staging schema is up to date
+        # The combination of --verbose and --strict makes this command
+        # prompt the user before making any changes to the database. Since
+        # GitHub actions is not interactive, the step will immediately end.
+        run: echo "$(bun --cwd web drizzle-kit push --verbose --strict)" >> $GITHUB_OUTPUT
+        id: check_schema
         env:
           DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
-      - name: Check exit code
-        run: |
-          echo "Exit code: ${{ steps.run_script.outcome }}"
-
-      - name: Create Preview Database and get URL
+      - name: Create Preview Database if necessary and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |
-          bun run bm -- preview create \
-            --branch-name "${{ github.head_ref }}"
-
-          DATABASE_URL=$(bun run bm -- preview url \
-            --branch-name "${{ github.head_ref }}")
-          echo "::add-mask::$DATABASE_URL"
+          check_schema_output="${{ steps.check_schema.outputs.result }}"
+          
+          # Check if output ends with "No changes detected" ('*' is wildcard)
+          if [[ "$check_schema_output" == *"No changes detected" ]]; then
+            echo "No schema changes detected. Using the root database"
+            DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
+          else
+            echo "Schema changes detected. Creating a new preview database"
+            bun run bm -- preview create \
+              --branch-name "${{ github.head_ref }}"
+  
+            DATABASE_URL=$(bun run bm -- preview url \
+              --branch-name "${{ github.head_ref }}")
+            echo "::add-mask::$DATABASE_URL"
+          
+            bun --cwd web drizzle-kit push
+            # Also can run DB seed code here...
+          fi
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
           ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
           DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
-
-      - name: Run Drizzle Migrate
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
-        run: |
-          cd web
-          bun drizzle-kit push
-          # Also can run DB seed code here..
-        env:
-          DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
       - name: Update Preview Database URL and trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
