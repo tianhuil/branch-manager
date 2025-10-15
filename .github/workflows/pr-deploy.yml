@@ -99,21 +99,20 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
         run: |          
-          # Check if output ends with "No changes detected" ('*' is wildcard)
           if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
-            echo "No schema changes detected. Using the root database"
-            DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
-          else
             echo "Schema changes detected. Creating a new preview database"
             bun run bm -- preview create \
               --branch-name "${{ github.head_ref }}"
-  
+          
             DATABASE_URL=$(bun run bm -- preview url \
               --branch-name "${{ github.head_ref }}")
             echo "::add-mask::$DATABASE_URL"
           
             bun --cwd web drizzle-kit push
             # Also can run DB seed code here...
+          else
+            echo "No schema changes detected. Using the root database"
+            DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
           fi
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
