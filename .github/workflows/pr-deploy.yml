@@ -84,7 +84,13 @@ jobs:
         # The combination of --verbose and --strict makes this command
         # prompt the user before making any changes to the database. Since
         # GitHub actions is not interactive, the step will immediately end.
-        run: echo "result=$(bun --cwd web drizzle-kit push --verbose --strict)" >> $GITHUB_OUTPUT
+        run: |
+          # Check if output ends with "No changes detected" ('*' is wildcard)
+          if [[ "$(bun --cwd web drizzle-kit push --verbose --strict)" == *"No changes detected" ]]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
         id: check_schema
         env:
           DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
@@ -92,11 +98,9 @@ jobs:
       - name: Create Preview Database if necessary and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
-        run: |
-          check_schema_output="${{ steps.check_schema.outputs.result }}"
-          
+        run: |          
           # Check if output ends with "No changes detected" ('*' is wildcard)
-          if [[ "$check_schema_output" == *"No changes detected" ]]; then
+          if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
             echo "No schema changes detected. Using the root database"
             DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
           else
