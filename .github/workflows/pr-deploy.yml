@@ -84,7 +84,7 @@ jobs:
         # The combination of --verbose and --strict makes this command
         # prompt the user before making any changes to the database. Since
         # GitHub actions is not interactive, the step will immediately end.
-        run: echo "$(bun --cwd web drizzle-kit push --verbose --strict)" >> $GITHUB_OUTPUT
+        run: echo "$(bun --cwd web drizzle-kit push --verbose --strict --config ./drizzle.config.ts)" >> $GITHUB_OUTPUT
         id: check_schema
         env:
           DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
