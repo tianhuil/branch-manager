@@ -16,5 +16,5 @@
     "declaration": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.e2e.ts"]
+  "exclude": ["node_modules", "dist"]
 }
