@@ -88,7 +88,7 @@ jobs:
           # user confirmation always fails and no SQL is actually run.
           out=$(bun --cwd web drizzle-kit push --verbose --strict)
           echo "$out"  # print full output to logs
-          
+
           # Check if output ends with "No changes detected" ('*' is wildcard)
           if [[ "$out" == *"No changes detected" ]]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
@@ -102,16 +102,16 @@ jobs:
       - name: Create Preview Database if necessary and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         id: db_url_step
-        run: |          
+        run: |
           if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
             echo "Schema changes detected. Creating a new preview database"
             bun run bm -- preview create \
               --branch-name "${{ github.head_ref }}"
-          
+
             DATABASE_URL=$(bun run bm -- preview url \
               --branch-name "${{ github.head_ref }}")
             echo "::add-mask::$DATABASE_URL"
-          
+
             bun --cwd web drizzle-kit push
             # Also can run DB seed code here...
           else
