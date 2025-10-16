@@ -12,6 +12,7 @@ export const blog = pgTable("blog", {
   published: boolean("published").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  startedAt: timestamp("started_at").notNull().defaultNow(),
 });
 
 export type Blog = typeof blog.$inferSelect;
