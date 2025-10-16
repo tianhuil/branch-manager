@@ -1,1 +1,0 @@
-ALTER TABLE "blog" ADD COLUMN "summary" text NOT NULL;

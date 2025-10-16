@@ -8,7 +8,6 @@ export const blog = pgTable("blog", {
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
-  summary: text("summary").notNull(),
   excerpt: text("excerpt"),
   published: boolean("published").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
