@@ -1,5 +1,6 @@
 import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { join } from "path";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { getDB, processEnvOrThrow } from "./util";
 
@@ -12,6 +13,7 @@ import { getDB, processEnvOrThrow } from "./util";
 const runDrizzleKitPush = (databaseUrl: string) => {
   return spawnSync({
     cmd: ["bun", "drizzle-kit", "push"],
+    cwd: join(import.meta.dir, "..", "web"),
     env: {
       ...process.env,
       DATABASE_URL: databaseUrl,
