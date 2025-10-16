@@ -1,6 +1,6 @@
 # Database Branch Manager - Core Logic
 
-[![CI](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml/badge.svg)](https://github.com/tianhuil/neon-prototype/actions/workflows/ci.yml)
+[![CI](https://github.com/tianhuil/branch-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/tianhuil/branch-manager/actions/workflows/ci.yml)
 
 ## Motivation
 
@@ -8,8 +8,10 @@ Vercel accelerates development by creating an independent branch app per pull re
 
 Branch Manager is a lightweight alternative to fancy **branches** provided by vendors like [Neon](https://neon.com/) or [PlanetScale](https://planetscale.com/). It has two advantages:
 
-- Vendor branches are a new abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
-- While Vendor tools help you to create user (aka roles), it doesn't help grant the right permissions for those roles. Branch Manager automatically creates user and roles with permissions isolated to your DB branch.
+- ✅ Vendor branches are a new abstraction. Branch Manager creates plain old [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html). No new abstractions to learn.
+- ✅ While Vendor tools help you to create user (aka roles), it doesn't help grant the right permissions for those roles. Branch Manager automatically creates user and roles with permissions isolated to your DB branch.
+
+There are a few drawbacks to using
 
 ## Install
 
@@ -19,16 +21,16 @@ Choose your preferred package manager:
 
 ```bash
 # Bun
-bun add github:tianhuil/neon-prototype
+bun add github:tianhuil/branch-manager
 
 # npm
-npm install github:tianhuil/neon-prototype
+npm install github:tianhuil/branch-manager
 
 # yarn
-yarn add github:tianhuil/neon-prototype
+yarn add github:tianhuil/branch-manager
 
 # pnpm
-pnpm add github:tianhuil/neon-prototype
+pnpm add github:tianhuil/branch-manager
 ```
 
 ### Run the CLI
@@ -40,8 +42,8 @@ After installation:
 npx bm preview --help
 
 # Or run directly from GitHub without installing
-npx github:tianhuil/neon-prototype bm preview --help
-bunx --bun github:tianhuil/neon-prototype bm preview --help
+npx github:tianhuil/branch-manager bm preview --help
+bunx --bun github:tianhuil/branch-manager bm preview --help
 ```
 
 ## Cli Overview
@@ -137,5 +139,5 @@ We have two comprehensive e2e test suites:
 bun run test:e2e
 ```
 
-- `src/db.e2e.ts`: tests the core database branch functionality with real PostgreSQL operations (we can create and delete a database with isolated permissions). This requires `ROOT_DATABASE_URL` and `DB_HOST` environment variables.
-- `src/install.e2e.ts`: tests installing the package. We build the package with `bun run pack` and then test installing the compressed archive on the major node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no environment variables.
+- `src/db.test.ts`: tests the core database branch functionality with real PostgreSQL operations (we can create and delete a database with isolated permissions). This requires `ROOT_DATABASE_URL` and `DB_HOST` environment variables.
+- `src/install.test.ts`: tests installing the package. We build the package with `bun run pack` and then test installing the compressed archive on the major node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no environment variables.

@@ -84,7 +84,7 @@ beforeAll(() => {
   }
 
   // Find the tarball in pack/
-  const lsResult = runCommand("ls -t pack/neon-prototype-*.tgz | head -1");
+  const lsResult = runCommand("ls -t pack/branch-manager-*.tgz | head -1");
   const tarballName = lsResult.stdout.toString().trim();
   tarballPath = join(projectRoot, tarballName);
 
