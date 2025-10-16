@@ -123,7 +123,7 @@ describe("db-setup e2e", () => {
 
     // Verify test-user-2 cannot push schema to test-db-1 using drizzle-kit
     const pushResult = runDrizzleKitPush(invalidUrl);
-    expect(containsPostgresError(pushResult)).toBe(true);
+    expect(containsPostgresError(pushResult)).toBeTrue();
   });
 
   test("should delete test-user-2 and verify user and database are removed", async () => {
