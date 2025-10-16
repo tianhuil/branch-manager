@@ -43,7 +43,11 @@ export const createDatabase = async ({
       `CREATE USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
     );
   } else {
-    logger.info("User already exists, skipping user creation");
+    logger.info("User already exists, updating password...");
+    // Update password in case it changed (e.g., different DB_PASSWORD_SEED)
+    await sql.query(
+      `ALTER USER ${dbUser} WITH PASSWORD '${dbPassword.replace(/'/g, "''")}'`
+    );
   }
 
   // Check if database exists
@@ -132,5 +136,7 @@ export const getDatabaseUrl = ({
   dbPassword,
   dbHost,
 }: GetDatabaseUrlParams) => {
-  return `postgresql://${dbUser}:${dbPassword}@${dbHost}/${dbName}?sslmode=require&channel_binding=require`;
+  // URL-encode the password to handle special characters
+  const encodedPassword = encodeURIComponent(dbPassword);
+  return `postgresql://${dbUser}:${encodedPassword}@${dbHost}/${dbName}?sslmode=require`;
 };

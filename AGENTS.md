@@ -6,23 +6,41 @@
 
 ## Coding style
 
-- Prefer to write functional code. Prefer `.map`, `.filter`, and `.flatMap` with arrays rather than creating an empty array and accumulating.
-- Prefer `const` to `let` and mutation. You can often change `let` to `const` by wrapping the complex logic in a separate function call (e.g. `const val = getVal()`).
-- Explicitly type where practicable. Look at the libraries and import and use those types; do not make up types.
-- Always avoid using type `any`. Try to avoid `unknown` if a known type can be gleaned from a library.
+- Prefer to write functional code. Prefer `.map`, `.filter`, and `.flatMap` with
+  arrays rather than creating an empty array and accumulating.
+- Prefer `const` to `let` and mutation. You can often change `let` to `const` by
+  wrapping the complex logic in a separate function call (e.g.
+  `const val = getVal()`).
+- Explicitly type where practicable. Look at the libraries and import and use
+  those types; do not make up types.
+- Always avoid using type `any`. Try to avoid `unknown` if a known type can be
+  gleaned from a library.
 - Add docstring to every class and function.
-- Any function or class with more than one argument should take a single object with named parameters. Function `fooBar` takes type `FooBarParam`, which should be defined immediately before `fooBar`. If the object only has a single field (e.g. `FooBarParam = {count: number}`) , do not use the object format and pass the field to the function directly (e.g. `fooBar(count: number)`).
-- When importing, prefer using a sibling absolute import path (e.g. `import * from './package/name'`). If not possible, use an absolute import path (e.g. `import * from '@/package/name'`). Never use a relative parent import path (e.g. `import * from '../package/name'`).
+- Any function or class with more than one argument should take a single object
+  with named parameters. Function `fooBar` takes type `FooBarParam`, which
+  should be defined immediately before `fooBar`. If the object only has a single
+  field (e.g. `FooBarParam = {count: number}`) , do not use the object format
+  and pass the field to the function directly (e.g. `fooBar(count: number)`).
+- When importing, prefer using a sibling absolute import path (e.g.
+  `import * from './package/name'`). If not possible, use an absolute import
+  path (e.g. `import * from '@/package/name'`). Never use a relative parent
+  import path (e.g. `import * from '../package/name'`).
 
 ## Secrets
 
 We use dotenvx for secrets management.
 
 - DO NOT ATTEMPT TO READ `.env.keys` WHICH CONTAIN THE SECRETS.
-- You can use dotenvx `dotenvx run -f .env.staging -- [script]` and `dotenvx run -f .env.production -- [script]` for staging and production secrets.
+- You can use dotenvx `dotenvx run -f .env.staging -- [script]` and
+  `dotenvx run -f .env.production -- [script]` for staging and production
+  secrets.
 - Development secrets are not encoded.
 
 ## Validation
 
-- Use `bun run typecheck && bun run check:fix` after each command and fix any errors. There may be errors in other files because another agent is working on those. Ignore those.
-- Use `bun test <test file I'm writing>` for unit testing; Only run tests affected by these changes on at the moment. Ignore all other test failures (don't try to fix them).
+- Use `bun run typecheck && bun run check:fix` after each command and fix any
+  errors. There may be errors in other files because another agent is working on
+  those. Ignore those.
+- Use `bun test <test file I'm writing>` for unit testing; Only run tests
+  affected by these changes on at the moment. Ignore all other test failures
+  (don't try to fix them).

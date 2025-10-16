@@ -112,8 +112,7 @@ jobs:
               --branch-name "${{ github.head_ref }}")
             echo "::add-mask::$DATABASE_URL"
 
-            bun --cwd web drizzle-kit push
-            # Also can run DB seed code here...
+            cd web && bun drizzle-kit push && bun run db:seed
           else
             echo "No schema changes detected. Using the root database"
             DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}

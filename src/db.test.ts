@@ -1,5 +1,6 @@
 import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { join } from "path";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import { getDB, processEnvOrThrow } from "./util";
 
@@ -12,6 +13,7 @@ import { getDB, processEnvOrThrow } from "./util";
 const runDrizzleKitPush = (databaseUrl: string) => {
   return spawnSync({
     cmd: ["bun", "drizzle-kit", "push"],
+    cwd: join(import.meta.dir, "..", "web"),
     env: {
       ...process.env,
       DATABASE_URL: databaseUrl,
@@ -123,7 +125,7 @@ describe("db-setup e2e", () => {
 
     // Verify test-user-2 cannot push schema to test-db-1 using drizzle-kit
     const pushResult = runDrizzleKitPush(invalidUrl);
-    expect(containsPostgresError(pushResult)).toBe(true);
+    expect(containsPostgresError(pushResult)).toBeTrue();
   });
 
   test("should delete test-user-2 and verify user and database are removed", async () => {

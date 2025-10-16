@@ -46,28 +46,28 @@ dbCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: DbCreateOptions) => {
-    try {
-      const dbName = validateOption(
-        options.dbName,
-        process.env.DB_NAME,
-        "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)"
-      );
-      const dbUser = validateOption(
-        options.dbUser,
-        process.env.DB_USER,
-        "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)"
-      );
-      const dbPassword = validateOption(
-        options.dbPassword,
-        process.env.DB_PASSWORD,
-        "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)"
-      );
-      const rootDatabaseUrl = validateOption(
-        options.rootDatabaseUrl,
-        process.env.ROOT_DATABASE_URL,
-        "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
-      );
+    const dbName = validateOption(
+      options.dbName,
+      process.env.DB_NAME,
+      "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)"
+    );
+    const dbUser = validateOption(
+      options.dbUser,
+      process.env.DB_USER,
+      "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)"
+    );
+    const dbPassword = validateOption(
+      options.dbPassword,
+      process.env.DB_PASSWORD,
+      "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)"
+    );
+    const rootDatabaseUrl = validateOption(
+      options.rootDatabaseUrl,
+      process.env.ROOT_DATABASE_URL,
+      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
+    );
 
+    try {
       await createDatabase({
         dbName,
         dbUser,

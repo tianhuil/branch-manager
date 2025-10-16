@@ -39,7 +39,6 @@
   ],
   "scripts": {
     "test": "bun test",
-    "test:e2e": "bun test ./**/*.e2e.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsup && chmod +x ../dist/index.js",
     "prepare": "npm run build",

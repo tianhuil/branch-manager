@@ -24,4 +24,4 @@ export const createLogger = (name: string) => {
 /**
  * Default logger instance
  */
-export const logger = createLogger("neon-prototype");
+export const logger = createLogger("branch-manager");

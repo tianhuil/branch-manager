@@ -1,5 +1,5 @@
 {
-  "name": "neon-prototype",
+  "name": "branch-manager",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -47,8 +47,7 @@
     "start": "bun --cwd web start",
     "prepare": "bun --cwd src build",
     "pack": "bun pm pack --destination pack/",
-    "test": "bun test",
-    "test:e2e": "dotenvx run -f .env.root.local -f .env -- bun test ./src/**/*.e2e.ts",
+    "test": "dotenvx run -f .env.root.local -f .env -- bun test",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "lint:workspaces": "bun --cwd src lint && bun --cwd web lint",
@@ -60,7 +59,8 @@
     "spell:fix": "cspell \"**/*\" --no-progress --no-summary",
     "check": "bun run lint && bun run format && bun run typecheck && bun run spell",
     "check:fix": "bun run lint:fix && bun run format:fix && bun run spell:fix",
-    "bm": "bun --cwd src index.ts"
+    "bm": "bun --cwd src index.ts",
+    "db:create": "dotenvx run -f .env.${VERCEL_ENV} -f .env -f .env.root.local -- bun run bm db create"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

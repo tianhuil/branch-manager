@@ -9,7 +9,7 @@ export default [
 
   // Package-specific ignores
   {
-    ignores: ["**/*.e2e.ts"],
+    ignores: [],
   },
 
   // Package-specific rules
