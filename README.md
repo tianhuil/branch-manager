@@ -118,3 +118,24 @@ The publishable npm package containing the database branch manager CLI tool. Inc
 ### `web/` - Test Application
 
 A Next.js application used for testing and demonstrating the database branch manager. Contains a sample database schema with Drizzle ORM and serves as a real-world integration test environment. Each PR automatically gets its own preview database via GitHub Actions (see `.github/workflows/pr-deploy.yml` for more).
+
+## Development
+
+For development, run
+
+```bash
+# Type check (eslint, prettier, typechecking, spellchecker)
+bun run check
+```
+
+### Testing
+
+We have two comprehensive e2e test suites:
+
+```bash
+# Run all e2e tests:
+bun run test:e2e
+```
+
+- `src/db.e2e.ts`: tests the core database branch functionality with real PostgreSQL operations (we can create and delete a database with isolated permissions). This requires `ROOT_DATABASE_URL` and `DB_HOST` environment variables.
+- `src/install.e2e.ts`: tests installing the package. We build the package with `bun run pack` and then test installing the compressed archive on the major node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no environment variables.
