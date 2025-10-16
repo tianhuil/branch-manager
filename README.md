@@ -60,11 +60,29 @@ Automatically creates databases tied to Git branches with pseudo-random segregat
 # Create for specific branch
 bm preview create --branch-name feat/new-feature
 
+# Or using environment variables:
+BRANCH_NAME=feat/new-feature \
+DB_PASSWORD_SEED=your-secret-seed \
+ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+bm preview create
+
 # Get connection URL for a branch
 bm preview url --branch-name feat/new-feature
 
+# Or using environment variables:
+BRANCH_NAME=feat/new-feature \
+DB_PASSWORD_SEED=your-secret-seed \
+DB_HOST=db.example.com \
+bm preview url
+
 # Delete preview database
 bm preview delete --branch-name feat/new-feature
+
+# Or using environment variables:
+BRANCH_NAME=feat/new-feature \
+DB_PASSWORD_SEED=your-secret-seed \
+ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+bm preview delete
 ```
 
 For these, you supply a random but fixed `--db-password-seed` which cryptographically creates a pseudo-random password based on the branch name. This prevents
@@ -78,7 +96,15 @@ This is a low-level API. It is useful for setting up permanent environments (e.g
 bm db create \
   --db-name my-db \
   --db-user my-user \
-  --db-password my-pass
+  --db-password my-pass \
+  --root-database-url postgresql://user:pass@host/db
+
+# Or using environment variables:
+DB_NAME=my-db \
+DB_USER=my-user \
+DB_PASSWORD=my-pass \
+ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+bm db create
 
 # Get connection URL
 bm db url \
@@ -87,13 +113,32 @@ bm db url \
   --db-password my-pass \
   --db-host db.example.com
 
+# Or using environment variables:
+DB_NAME=my-db \
+DB_USER=my-user \
+DB_PASSWORD=my-pass \
+DB_HOST=db.example.com \
+bm db url
+
 # Delete database
-bm db delete --db-name my-db --db-user my-user
+bm db delete \
+  --db-name my-db \
+  --db-user my-user \
+  --root-database-url postgresql://user:pass@host/db
+
+# Or using environment variables:
+DB_NAME=my-db \
+DB_USER=my-user \
+ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+bm db delete
 ```
 
 Here, you can specify the password, user, and database name manually for greater control and security.
 
 ### Architecture
+
+At a high level, the code is organized with `preview.ts` calling `db.ts`, which
+have the respective commands for the cli.
 
 ```text
 ┌─────────────┐
@@ -106,7 +151,7 @@ Here, you can specify the password, user, and database name manually for greater
 │   db.ts     │  PostgreSQL database creation/deletion
 │             │  User management & permissions
 └──────┬──────┘
-       │
+       │ uses
        ▼
    PostgreSQL
 ```
