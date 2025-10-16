@@ -103,7 +103,7 @@ jobs:
         run: |
           cd web
           bun drizzle-kit push
-          # Also can run DB seed code here..
+          bun run db:seed
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
