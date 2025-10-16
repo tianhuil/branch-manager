@@ -108,7 +108,7 @@ jobs:
             bun run bm -- preview create \
               --branch-name "${{ github.head_ref }}"
 
-            DATABASE_URL=$(bun run bm -- preview url \
+            export DATABASE_URL=$(bun run bm -- preview url \
               --branch-name "${{ github.head_ref }}")
             echo "::add-mask::$DATABASE_URL"
 
