@@ -60,7 +60,8 @@
     "spell:fix": "cspell \"**/*\" --no-progress --no-summary",
     "check": "bun run lint && bun run format && bun run typecheck && bun run spell",
     "check:fix": "bun run lint:fix && bun run format:fix && bun run spell:fix",
-    "bm": "bun --cwd src index.ts"
+    "bm": "bun --cwd src index.ts",
+    "db:create": "dotenvx run -f .env.${VERCEL_ENV} -f .env -f .env.root.local -- bun run bm db create"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
