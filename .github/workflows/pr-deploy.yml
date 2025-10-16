@@ -101,8 +101,7 @@ jobs:
       - name: Run Drizzle Migrate
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          cd web && bun drizzle-kit push
-          cd .. && bun run db:seed
+          cd web && bun drizzle-kit push && bun run db:seed
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
