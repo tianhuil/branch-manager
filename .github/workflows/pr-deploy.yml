@@ -81,6 +81,7 @@ jobs:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
       - name: Check if the staging schema is up to date
+        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # --strict makes this command prompt the user before making any changes
           # to the database. Since the GitHub actions environment is not interactive,
