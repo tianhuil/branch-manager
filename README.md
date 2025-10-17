@@ -80,27 +80,27 @@ bm preview create --branch-name feat/new-feature
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm preview create
+  DB_PASSWORD_SEED=your-secret-seed \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm preview create
 
 # Get connection URL for a branch
 bm preview url --branch-name feat/new-feature
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-DB_HOST=db.example.com \
-bm preview url
+  DB_PASSWORD_SEED=your-secret-seed \
+  DB_HOST=db.example.com \
+  bm preview url
 
 # Delete preview database
 bm preview delete --branch-name feat/new-feature
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm preview delete
+  DB_PASSWORD_SEED=your-secret-seed \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm preview delete
 ```
 
 For these, you supply a random but fixed `--db-password-seed` which
@@ -123,10 +123,10 @@ bm db create \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-DB_PASSWORD=my-pass \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm db create
+  DB_USER=my-user \
+  DB_PASSWORD=my-pass \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm db create
 
 # Get connection URL
 bm db url \
@@ -137,10 +137,10 @@ bm db url \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-DB_PASSWORD=my-pass \
-DB_HOST=db.example.com \
-bm db url
+  DB_USER=my-user \
+  DB_PASSWORD=my-pass \
+  DB_HOST=db.example.com \
+  bm db url
 
 # Delete database
 bm db delete \
@@ -150,9 +150,9 @@ bm db delete \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm db delete
+  DB_USER=my-user \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm db delete
 ```
 
 Here, you can specify the password, user, and database name manually for greater
