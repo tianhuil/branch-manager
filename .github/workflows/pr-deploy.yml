@@ -87,9 +87,9 @@ jobs:
 
           # Check if there are new migrations between staging and this branch
           if git diff --name-only staging ${{ github.sha }} | grep 'migrations/.*\.sql$'; then
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          else
             echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
         id: check_schema
         env:
