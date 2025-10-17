@@ -248,9 +248,8 @@ VERCEL_ENV=production bun run db:create
 VERCEL_ENV=staging bun run db:migrate
 ```
 
-Some of the DB jobs scripts access to `.env.root.local` (not checked into
-codebase) which contains the root secret for the Postgres Database.
+The CI environment `.env.ci` also contains:
 
-The CI environment `.env.ci` also contains Vercel secrets and the
-`ROOT_DATABASE_URL` and `DB_PASSWORD_SEED`, to make changes to the database in
-the Github Actions environment.
+- Vercel credentials for deploying Vercel.
+- Secrets `ROOT_DATABASE_URL` and `DB_PASSWORD_SEED` to make changes to the
+  database in the Github Actions environment.
