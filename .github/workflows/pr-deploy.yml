@@ -109,7 +109,7 @@ jobs:
             cd web && bun drizzle-kit push && bun run db:seed
           else
             echo "No schema changes detected. Using the root database"
-            DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
+            # DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
           fi
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
