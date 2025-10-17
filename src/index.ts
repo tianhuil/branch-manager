@@ -6,7 +6,11 @@ import {
   deletePreviewDatabase,
   getPreviewDatabaseUrl,
 } from "./preview";
-import { getCurrentGitBranch, validateOption } from "./util";
+import {
+  extractHostFromDatabaseUrl,
+  getCurrentGitBranch,
+  validateOption,
+} from "./util";
 
 const program = new Command();
 
@@ -154,9 +158,10 @@ dbCommand
       process.env.DB_PASSWORD
     );
     const dbHost = validateOption(
-      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)",
+      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
       options.dbHost,
-      process.env.DB_HOST
+      process.env.DB_HOST,
+      extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
     );
 
     const url = getDatabaseUrl({
@@ -297,9 +302,10 @@ previewCommand
     );
 
     const dbHost = validateOption(
-      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)",
+      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
       options.dbHost,
-      process.env.DB_HOST
+      process.env.DB_HOST,
+      extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
     );
 
     const url = getPreviewDatabaseUrl({ branchName, dbPasswordSeed, dbHost });
