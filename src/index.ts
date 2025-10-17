@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { execSync } from "child_process";
 import { Command } from "commander";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import {
@@ -7,6 +6,7 @@ import {
   deletePreviewDatabase,
   getPreviewDatabaseUrl,
 } from "./preview";
+import { getCurrentGitBranch, validateOption } from "./util";
 
 const program = new Command();
 
@@ -305,45 +305,6 @@ previewCommand
     const url = getPreviewDatabaseUrl({ branchName, dbPasswordSeed, dbHost });
     console.log(url);
   });
-
-// ============================================================================
-// Utilities
-// ============================================================================
-
-/**
- * Validates that at least one of the provided options is truthy
- * @param error - Error message to throw if validation fails
- * @param options - Variable number of option values to check (first truthy value wins)
- * @returns The first truthy string value from the options
- * @throws Error with the provided error message if all values are falsy
- */
-const validateOption = (
-  error: string,
-  ...options: (string | undefined)[]
-): string => {
-  const value = options.reduce(
-    (acc, curr) => acc || curr,
-    undefined as string | undefined
-  );
-  if (!value) {
-    throw new Error(error);
-  }
-  return value;
-};
-
-/**
- * Get the current git branch name
- * @returns The current git branch name or undefined if not in a git repository
- */
-const getCurrentGitBranch = (): string | undefined => {
-  try {
-    return execSync("git rev-parse --abbrev-ref HEAD", {
-      encoding: "utf-8",
-    }).trim();
-  } catch {
-    return undefined;
-  }
-};
 
 // Parse arguments
 program.parse();

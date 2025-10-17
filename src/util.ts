@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { execSync } from "child_process";
 
 /**
  * Get database client
@@ -27,9 +28,46 @@ export const processEnvOrThrow = (key: string): string => {
 };
 
 /**
- * Run a command and throw error if it fails
+ * Extract hostname from database URL
+ * @param databaseUrl - Database URL to extract hostname from
+ * @returns The hostname from the URL
  */
 export const extractHostFromDatabaseUrl = (databaseUrl: string): string => {
   const url = new URL(databaseUrl);
   return url.hostname;
+};
+
+/**
+ * Validates that at least one of the provided options is truthy
+ * @param error - Error message to throw if validation fails
+ * @param options - Variable number of option values to check (first truthy value wins)
+ * @returns The first truthy string value from the options
+ * @throws Error with the provided error message if all values are falsy
+ */
+export const validateOption = (
+  error: string,
+  ...options: (string | undefined)[]
+): string => {
+  const value = options.reduce(
+    (acc, curr) => acc || curr,
+    undefined as string | undefined
+  );
+  if (!value) {
+    throw new Error(error);
+  }
+  return value;
+};
+
+/**
+ * Get the current git branch name
+ * @returns The current git branch name or undefined if not in a git repository
+ */
+export const getCurrentGitBranch = (): string | undefined => {
+  try {
+    return execSync("git rev-parse --abbrev-ref HEAD", {
+      encoding: "utf-8",
+    }).trim();
+  } catch {
+    return undefined;
+  }
 };
