@@ -155,8 +155,6 @@ dbCommand
       "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)"
     );
 
-    console.log({ dbName, dbUser, dbPassword, dbHost });
-
     const url = getDatabaseUrl({
       dbName,
       dbUser,
