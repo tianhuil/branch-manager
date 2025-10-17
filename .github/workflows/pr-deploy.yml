@@ -126,7 +126,7 @@ jobs:
             # Remove the overwrite in case the commit making changes to the schema was reverted
             bun vercel env remove DATABASE_URL preview "${{ github.head_ref }}" \
               --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
-              --force
+              --yes
           fi
 
           # Trigger a new deployment for the PR's branch using Vercel CLI
