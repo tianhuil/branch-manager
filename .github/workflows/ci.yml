@@ -33,3 +33,6 @@ jobs:
 
       - name: Run spell
         run: bun run spell
+
+      - name: Check migration files
+        run: bun --cwd web drizzle-kit check

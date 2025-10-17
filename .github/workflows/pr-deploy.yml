@@ -83,10 +83,8 @@ jobs:
       - name: Check if the staging schema is up to date
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          # --strict makes this command prompt the user before making any changes
-          # to the database. Since the GitHub actions environment is not interactive,
-          # user confirmation always fails and no SQL is actually run.
-          out=$(bun --cwd web drizzle-kit push --verbose --strict)
+          # Check if there are new migrations between staging and this branch
+          out=$(git diff --name-only staging ${{ github.sha }} | grep -q '^migrations/.*\.sql$')
           echo "$out"  # print full output to logs
 
           # Check if output ends with "No changes detected" ('*' is wildcard)
