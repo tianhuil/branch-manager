@@ -76,7 +76,10 @@ the fly and ephemeral.
 
 ```bash
 # Create for specific branch
-bm preview create --branch-name feat/new-feature
+bm preview create \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
@@ -85,7 +88,10 @@ BRANCH_NAME=feat/new-feature \
   bm preview create
 
 # Get connection URL for a branch
-bm preview url --branch-name feat/new-feature
+bm preview url \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --db-host db.example.com
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
@@ -94,7 +100,10 @@ BRANCH_NAME=feat/new-feature \
   bm preview url
 
 # Delete preview database
-bm preview delete --branch-name feat/new-feature
+bm preview delete \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
