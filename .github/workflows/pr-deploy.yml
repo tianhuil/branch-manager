@@ -84,7 +84,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           git fetch origin staging:staging --force
-          
+
           # Check if there are new migrations between staging and this branch
           if git diff --name-only staging ${{ github.sha }} | grep 'migrations/.*\.sql$'; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
