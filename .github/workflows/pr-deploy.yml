@@ -113,22 +113,21 @@ jobs:
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
-      - name: Update Preview Database URL and trigger Vercel redeployment
+      - name: Update Preview Database URL
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
+        run: |
+          # Add DATABASE_URL for the specific Git branch using Vercel CLI
+          echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
+            bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+            --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
+            --force
+        env:
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
+
+      - name: Trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
-            # Add DATABASE_URL for the specific Git branch using Vercel CLI
-            echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
-              bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-              --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
-              --force
-          else
-            # Remove the overwrite in case the commit making changes to the schema was reverted
-            bun vercel env remove DATABASE_URL preview "${{ github.head_ref }}" \
-              --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
-              --yes
-          fi
-
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun vercel deploy \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
