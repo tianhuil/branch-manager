@@ -92,8 +92,6 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
         id: check_schema
-        env:
-          DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Create Preview Database if necessary and get URL
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
