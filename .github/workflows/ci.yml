@@ -33,3 +33,6 @@ jobs:
 
       - name: Run spell
         run: bun run spell
+
+      - name: Run tests
+        run: bun run test
