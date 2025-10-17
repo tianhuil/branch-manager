@@ -91,36 +91,42 @@ jobs:
         id: check_schema
 
       - name: Create Preview Database if necessary and get URL
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
         id: db_url_step
         run: |
-          if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
-            echo "Schema changes detected. Creating a new preview database"
-            bun run bm -- preview create \
-              --branch-name "${{ github.head_ref }}"
+          bun run bm -- preview create \
+            --branch-name "${{ github.head_ref }}"
 
-            export DATABASE_URL=$(bun run bm -- preview url \
-              --branch-name "${{ github.head_ref }}")
-            echo "::add-mask::$DATABASE_URL"
-
-            cd web && bun drizzle-kit push && bun run lib/db/seed.ts
-          else
-            echo "No schema changes detected. Using the root database"
-            # DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
-          fi
+          DATABASE_URL=$(bun run bm -- preview url \
+            --branch-name "${{ github.head_ref }}")
+          
+          echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
           ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
+      - name: Run Drizzle Migrate
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
+        run: |
+          cd web && bun drizzle-kit push && bun run lib/db/seed.ts
+        env:
+          DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
+
       - name: Update Preview Database URL and trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
-          # Add DATABASE_URL for the specific Git branch using Vercel CLI
-          echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
-            bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
-            --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
-            --force
+          if [[ "${{ steps.check_schema.outputs.has_changes }}" == "true" ]]; then
+            # Add DATABASE_URL for the specific Git branch using Vercel CLI
+            echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
+              bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
+              --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
+              --force
+          else
+            # Remove the overwrite in case the commit making changes to the schema was reverted
+            bun vercel env remove DATABASE_URL preview "${{ github.head_ref }}" \
+              --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}"
+          fi
 
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun vercel deploy \
