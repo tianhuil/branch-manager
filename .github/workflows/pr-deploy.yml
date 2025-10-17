@@ -99,7 +99,7 @@ jobs:
 
           DATABASE_URL=$(bun run bm -- preview url \
             --branch-name "${{ github.head_ref }}")
-          
+
           echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
