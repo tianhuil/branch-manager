@@ -25,3 +25,11 @@ export const processEnvOrThrow = (key: string): string => {
   }
   return value;
 };
+
+/**
+ * Run a command and throw error if it fails
+ */
+export const extractHostFromDatabaseUrl = (databaseUrl: string): string => {
+  const url = new URL(databaseUrl);
+  return url.hostname;
+};
