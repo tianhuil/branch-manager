@@ -2,7 +2,11 @@
 import { execSync } from "child_process";
 import { Command } from "commander";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
-import { PreviewDatabase } from "./preview";
+import {
+  createPreviewDatabase,
+  deletePreviewDatabase,
+  getPreviewDatabaseUrl,
+} from "./preview";
 
 const program = new Command();
 
@@ -197,22 +201,29 @@ previewCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewCreateOptions) => {
-    // Set environment variables from options if provided
-    if (options.dbPasswordSeed) {
-      process.env.DB_PASSWORD_SEED = options.dbPasswordSeed;
-    }
-    if (options.rootDatabaseUrl) {
-      process.env.ROOT_DATABASE_URL = options.rootDatabaseUrl;
-    }
-
     const branchName = validateOption(
       options.branchName || process.env.BRANCH_NAME,
       getCurrentGitBranch(),
       "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)"
     );
 
-    const preview = new PreviewDatabase(branchName);
-    await preview.create();
+    const dbPasswordSeed = validateOption(
+      options.dbPasswordSeed,
+      process.env.DB_PASSWORD_SEED,
+      "Missing required parameter: dbPasswordSeed (provide via --db-password-seed or DB_PASSWORD_SEED env var)"
+    );
+
+    const rootDatabaseUrl = validateOption(
+      options.rootDatabaseUrl,
+      process.env.ROOT_DATABASE_URL,
+      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
+    );
+
+    await createPreviewDatabase({
+      branchName,
+      dbPasswordSeed,
+      rootDatabaseUrl,
+    });
   });
 
 /**
@@ -220,7 +231,6 @@ previewCommand
  */
 interface PreviewDeleteOptions {
   branchName?: string;
-  dbPasswordSeed?: string;
   rootDatabaseUrl?: string;
 }
 
@@ -232,30 +242,23 @@ previewCommand
     "Branch name (overrides BRANCH_NAME env var, defaults to current git branch)"
   )
   .option(
-    "--db-password-seed <seed>",
-    "Password seed (overrides DB_PASSWORD_SEED env var)"
-  )
-  .option(
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewDeleteOptions) => {
-    // Set environment variables from options if provided
-    if (options.dbPasswordSeed) {
-      process.env.DB_PASSWORD_SEED = options.dbPasswordSeed;
-    }
-    if (options.rootDatabaseUrl) {
-      process.env.ROOT_DATABASE_URL = options.rootDatabaseUrl;
-    }
-
     const branchName = validateOption(
       options.branchName || process.env.BRANCH_NAME,
       getCurrentGitBranch(),
       "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)"
     );
 
-    const preview = new PreviewDatabase(branchName);
-    await preview.delete();
+    const rootDatabaseUrl = validateOption(
+      options.rootDatabaseUrl,
+      process.env.ROOT_DATABASE_URL,
+      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)"
+    );
+
+    await deletePreviewDatabase({ branchName, rootDatabaseUrl });
   });
 
 /**
@@ -280,19 +283,26 @@ previewCommand
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .action((options: PreviewUrlOptions) => {
-    // Set environment variables from options if provided
-    if (options.dbPasswordSeed) {
-      process.env.DB_PASSWORD_SEED = options.dbPasswordSeed;
-    }
-    if (options.dbHost) {
-      process.env.DB_HOST = options.dbHost;
-    }
-    if (!options.branchName) {
-      throw new Error("Missing branch name (provide via --branch-name option)");
-    }
+    const branchName = validateOption(
+      options.branchName,
+      undefined,
+      "Missing branch name (provide via --branch-name option)"
+    );
 
-    const preview = new PreviewDatabase(options.branchName);
-    console.log(preview.databaseUrl);
+    const dbPasswordSeed = validateOption(
+      options.dbPasswordSeed,
+      process.env.DB_PASSWORD_SEED,
+      "Missing required parameter: dbPasswordSeed (provide via --db-password-seed or DB_PASSWORD_SEED env var)"
+    );
+
+    const dbHost = validateOption(
+      options.dbHost,
+      process.env.DB_HOST,
+      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var)"
+    );
+
+    const url = getPreviewDatabaseUrl({ branchName, dbPasswordSeed, dbHost });
+    console.log(url);
   });
 
 // ============================================================================
