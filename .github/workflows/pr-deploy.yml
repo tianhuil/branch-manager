@@ -84,11 +84,7 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
         run: |
           # Check if there are new migrations between staging and this branch
-          out=$(git diff --name-only staging ${{ github.sha }} | grep -q '^migrations/.*\.sql$')
-          echo "$out"  # print full output to logs
-
-          # Check if output ends with "No changes detected" ('*' is wildcard)
-          if [[ "$out" == *"No changes detected" ]]; then
+          if git diff --name-only staging ${{ github.sha }} | grep 'migrations/.*\.sql$'; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
