@@ -161,7 +161,9 @@ dbCommand
       "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
       options.dbHost,
       process.env.DB_HOST,
-      extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+      process.env.ROOT_DATABASE_URL
+        ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+        : undefined
     );
 
     const url = getDatabaseUrl({
@@ -305,7 +307,9 @@ previewCommand
       "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
       options.dbHost,
       process.env.DB_HOST,
-      extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+      process.env.ROOT_DATABASE_URL
+        ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+        : undefined
     );
 
     const url = getPreviewDatabaseUrl({ branchName, dbPasswordSeed, dbHost });

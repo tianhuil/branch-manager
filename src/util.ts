@@ -32,12 +32,7 @@ export const processEnvOrThrow = (key: string): string => {
  * @param databaseUrl - Database URL to extract hostname from
  * @returns The hostname from the URL
  */
-export const extractHostFromDatabaseUrl = (
-  databaseUrl?: string
-): string | undefined => {
-  if (!databaseUrl) {
-    return undefined;
-  }
+export const extractHostFromDatabaseUrl = (databaseUrl: string): string => {
   const url = new URL(databaseUrl);
   return url.hostname;
 };
