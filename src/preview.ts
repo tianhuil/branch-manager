@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
-import { processEnvOrThrow } from "./util";
 
 /**
  * In CI/CD, we need isolated databases for each Git branch, but:
@@ -11,68 +10,106 @@ import { processEnvOrThrow } from "./util";
  * We solve this using a pseudo-random but deterministic password generation
  * algorithm based on a single secret password seed.  This is secure and stateless.
  */
-export class PreviewDatabase {
-  constructor(public readonly branchName: string) {}
 
-  /**
-   * Sanitizes the branch name to contain only valid PostgreSQL identifier characters.
-   * Converts all characters that are not [a-zA-Z0-9_] to underscores.
-   */
-  private get sanitizedBranchName(): string {
-    return this.branchName.replace(/[^a-zA-Z0-9_]/g, "_");
-  }
+export interface PreviewParams {
+  branchName: string;
+  dbPasswordSeed: string;
+}
 
-  get dbName() {
-    return `preview_${this.sanitizedBranchName}`;
-  }
+export interface CreatePreviewDatabaseParams extends PreviewParams {
+  rootDatabaseUrl: string;
+}
 
-  get dbUser() {
-    return `preview_${this.sanitizedBranchName}`;
-  }
+export interface DeletePreviewDatabaseParams {
+  branchName: string;
+  rootDatabaseUrl: string;
+}
 
-  /**
-   * Pseudo-random but deterministic password generation algorithm based on a
-   * single fixed password seed.
-   * Encoded in base64url to be URL-safe.
-   */
-  get dbPassword(): string {
-    const passwordSeed = processEnvOrThrow("DB_PASSWORD_SEED");
-    return crypto
-      .pbkdf2Sync(passwordSeed, this.sanitizedBranchName, 1000, 64, "sha512")
-      .toString("base64url");
-  }
+export interface GetPreviewDatabaseUrlParams extends PreviewParams {
+  dbHost: string;
+}
 
-  get dbHost() {
-    return processEnvOrThrow("DB_HOST");
-  }
+/**
+ * Sanitizes the branch name to contain only valid PostgreSQL identifier characters.
+ * Converts all characters that are not [a-zA-Z0-9_] to underscores.
+ */
+function sanitizeBranchName(branchName: string): string {
+  return branchName.replace(/[^a-zA-Z0-9_]/g, "_");
+}
 
-  get rootDatabaseUrl() {
-    return processEnvOrThrow("ROOT_DATABASE_URL");
-  }
+/**
+ * Gets the database name for a preview database.
+ */
+function getPreviewDbName(branchName: string): string {
+  const sanitized = sanitizeBranchName(branchName);
+  return `preview_${sanitized}`;
+}
 
-  get databaseUrl() {
-    return getDatabaseUrl({
-      dbName: this.dbName,
-      dbUser: this.dbUser,
-      dbPassword: this.dbPassword,
-      dbHost: this.dbHost,
-    });
-  }
+/**
+ * Gets the database user for a preview database.
+ */
+function getPreviewDbUser(branchName: string): string {
+  const sanitized = sanitizeBranchName(branchName);
+  return `preview_${sanitized}`;
+}
 
-  async create() {
-    await createDatabase({
-      dbName: this.dbName,
-      dbUser: this.dbUser,
-      dbPassword: this.dbPassword,
-      rootDatabaseUrl: this.rootDatabaseUrl,
-    });
-  }
+/**
+ * Pseudo-random but deterministic password generation algorithm based on a
+ * single fixed password seed.
+ * Encoded in base64url to be URL-safe.
+ */
+function getPreviewDbPassword({
+  branchName,
+  dbPasswordSeed,
+}: PreviewParams): string {
+  const sanitized = sanitizeBranchName(branchName);
+  return crypto
+    .pbkdf2Sync(dbPasswordSeed, sanitized, 1000, 64, "sha512")
+    .toString("base64url");
+}
 
-  async delete() {
-    await deleteDatabase({
-      dbName: this.dbName,
-      dbUser: this.dbUser,
-      rootDatabaseUrl: this.rootDatabaseUrl,
-    });
-  }
+/**
+ * Gets the database URL for a preview database.
+ */
+export function getPreviewDatabaseUrl({
+  branchName,
+  dbPasswordSeed,
+  dbHost,
+}: GetPreviewDatabaseUrlParams): string {
+  return getDatabaseUrl({
+    dbName: getPreviewDbName(branchName),
+    dbUser: getPreviewDbUser(branchName),
+    dbPassword: getPreviewDbPassword({ branchName, dbPasswordSeed }),
+    dbHost,
+  });
+}
+
+/**
+ * Creates a preview database for a given branch.
+ */
+export async function createPreviewDatabase({
+  branchName,
+  dbPasswordSeed,
+  rootDatabaseUrl,
+}: CreatePreviewDatabaseParams): Promise<void> {
+  await createDatabase({
+    dbName: getPreviewDbName(branchName),
+    dbUser: getPreviewDbUser(branchName),
+    dbPassword: getPreviewDbPassword({ branchName, dbPasswordSeed }),
+    rootDatabaseUrl,
+  });
+}
+
+/**
+ * Deletes a preview database for a given branch.
+ */
+export async function deletePreviewDatabase({
+  branchName,
+  rootDatabaseUrl,
+}: DeletePreviewDatabaseParams): Promise<void> {
+  await deleteDatabase({
+    dbName: getPreviewDbName(branchName),
+    dbUser: getPreviewDbUser(branchName),
+    rootDatabaseUrl,
+  });
 }

@@ -71,9 +71,6 @@ jobs:
           echo "::add-mask::$DB_PASSWORD_SEED"
           echo "DB_PASSWORD_SEED=$DB_PASSWORD_SEED" >> $GITHUB_OUTPUT
 
-          DB_HOST=$(bun dotenvx get DB_HOST --quiet -f .env.ci -f .env)
-          echo "DB_HOST=$DB_HOST" >> $GITHUB_OUTPUT
-
           ROOT_DATABASE_URL=$(bun dotenvx get ROOT_DATABASE_URL --quiet -f .env.ci -f .env)
           echo "::add-mask::$ROOT_DATABASE_URL"
           echo "ROOT_DATABASE_URL=$ROOT_DATABASE_URL" >> $GITHUB_OUTPUT
@@ -106,7 +103,7 @@ jobs:
               --branch-name "${{ github.head_ref }}")
             echo "::add-mask::$DATABASE_URL"
 
-            cd web && bun drizzle-kit push && bun run db:seed
+            cd web && bun drizzle-kit push && bun run lib/db/seed.ts
           else
             echo "No schema changes detected. Using the root database"
             # DATABASE_URL=${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
@@ -115,7 +112,6 @@ jobs:
         env:
           DB_PASSWORD_SEED: ${{ steps.secrets.outputs.DB_PASSWORD_SEED }}
           ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
-          DB_HOST: ${{ steps.secrets.outputs.DB_HOST }}
 
       - name: Update Preview Database URL and trigger Vercel redeployment
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'

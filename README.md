@@ -11,20 +11,25 @@ of simple **"DB branches"**.
 
 Branch Manager is a lightweight alternative to fancy **branches** provided by
 vendors like [Neon](https://neon.com/) or
-[PlanetScale](https://planetscale.com/). It has two advantages:
+[PlanetScale](https://planetscale.com/). It has three advantages:
 
-- ✅ Vendor branches are a new abstraction. Branch Manager creates plain old
-  [postgres databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html).
-  No new abstractions to learn.
-- ✅ While Vendor tools help you to create user (aka roles), it doesn't help
-  grant the right permissions for those roles. Branch Manager automatically
-  creates user and roles with permissions isolated to your DB branch.
+- ✅ Branch Manager is Vendor agnostic 🎉! Avoid vendor lock-in by relying on
+  Postgres primitives.
+
+- ✅ No new abstractions to learn 🎉! Vendor branches are a new abstraction that
+  may not work as expected. Branch Manager creates plain old Postgres
+  [databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html).
+
+- ✅ Branch Manager is a complete solution 🎉! While Vendor tools help you to
+  create user (aka roles), it doesn't help grant the right permissions for those
+  roles. Branch Manager automatically creates user and roles with permissions
+  isolated to your DB branch.
 
 There are a few drawbacks to using Branch Manager:
 
-- ❌ Vendor branches copy data from the parent branch. We expect a user to run a
-  seeding script post branch creation. We believe that having a seeding script
-  is a best practice so this is not a big downside.
+- ❌ Vendor branches copy data from the parent branch. Branch Manger expects a
+  user to run a seeding script post branch creation. We believe that having a
+  seeding script is a best practice so this is not a big downside.
 
 ## Install
 
@@ -71,31 +76,40 @@ the fly and ephemeral.
 
 ```bash
 # Create for specific branch
-bm preview create --branch-name feat/new-feature
+bm preview create \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm preview create
+  DB_PASSWORD_SEED=your-secret-seed \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm preview create
 
 # Get connection URL for a branch
-bm preview url --branch-name feat/new-feature
+bm preview url \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --db-host db.example.com
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-DB_HOST=db.example.com \
-bm preview url
+  DB_PASSWORD_SEED=your-secret-seed \
+  DB_HOST=db.example.com \
+  bm preview url
 
 # Delete preview database
-bm preview delete --branch-name feat/new-feature
+bm preview delete \
+  --branch-name feat/new-feature \
+  --db-password-seed your-secret-seed \
+  --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
 BRANCH_NAME=feat/new-feature \
-DB_PASSWORD_SEED=your-secret-seed \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm preview delete
+  DB_PASSWORD_SEED=your-secret-seed \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm preview delete
 ```
 
 For these, you supply a random but fixed `--db-password-seed` which
@@ -118,10 +132,10 @@ bm db create \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-DB_PASSWORD=my-pass \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm db create
+  DB_USER=my-user \
+  DB_PASSWORD=my-pass \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm db create
 
 # Get connection URL
 bm db url \
@@ -132,10 +146,10 @@ bm db url \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-DB_PASSWORD=my-pass \
-DB_HOST=db.example.com \
-bm db url
+  DB_USER=my-user \
+  DB_PASSWORD=my-pass \
+  DB_HOST=db.example.com \
+  bm db url
 
 # Delete database
 bm db delete \
@@ -145,9 +159,9 @@ bm db delete \
 
 # Or using environment variables:
 DB_NAME=my-db \
-DB_USER=my-user \
-ROOT_DATABASE_URL=postgresql://user:pass@host/db \
-bm db delete
+  DB_USER=my-user \
+  ROOT_DATABASE_URL=postgresql://user:pass@host/db \
+  bm db delete
 ```
 
 Here, you can specify the password, user, and database name manually for greater
@@ -219,3 +233,32 @@ bun run test:e2e
   `bun run pack` and then test installing the compressed archive on the major
   node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no
   environment variables.
+
+### Secrets Management
+
+This repo use [dotenvx](https://dotenvx.com/) to manage secrets for the demo web
+app on a neon database (you don't have to; branch manager is agnostic to your
+choice of secrets manager and Postgres DB).
+
+Each of the following files represents the encrypted credentials for an
+environment (same keys, different values):
+
+```text
+.env.development
+.env.production
+.env.staging
+```
+
+They are meant to be used with the `.env` file to construct the `DATABASE_URL`,
+e.g.
+
+```bash
+VERCEL_ENV=production bun run db:create
+VERCEL_ENV=staging bun run db:migrate
+```
+
+The CI environment `.env.ci` also contains:
+
+- Vercel credentials for deploying Vercel.
+- Secrets `ROOT_DATABASE_URL` and `DB_PASSWORD_SEED` to make changes to the
+  database in the Github Actions environment.
