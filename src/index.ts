@@ -20,6 +20,90 @@ program
   .version("1.0.0");
 
 // ============================================================================
+// Field Validation Functions
+// ============================================================================
+
+/**
+ * Validates and retrieves the database name from options or environment
+ */
+const getDbName = (options: { dbName?: string }): string =>
+  validateOption(
+    "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+    options.dbName,
+    process.env.DB_NAME
+  );
+
+/**
+ * Validates and retrieves the database user from options or environment
+ */
+const getDbUser = (options: { dbUser?: string }): string =>
+  validateOption(
+    "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
+    options.dbUser,
+    process.env.DB_USER
+  );
+
+/**
+ * Retrieves the optional database user from options or environment
+ */
+const getDbUserOptional = (options: { dbUser?: string }): string | undefined =>
+  options.dbUser || process.env.DB_USER;
+
+/**
+ * Validates and retrieves the database password from options or environment
+ */
+const getDbPassword = (options: { dbPassword?: string }): string =>
+  validateOption(
+    "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
+    options.dbPassword,
+    process.env.DB_PASSWORD
+  );
+
+/**
+ * Validates and retrieves the root database URL from options or environment
+ */
+const getRootDatabaseUrl = (options: { rootDatabaseUrl?: string }): string =>
+  validateOption(
+    "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
+    options.rootDatabaseUrl,
+    process.env.ROOT_DATABASE_URL
+  );
+
+/**
+ * Validates and retrieves the database host from options, environment, or root URL
+ */
+const getDbHost = (options: { dbHost?: string }): string =>
+  validateOption(
+    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
+    options.dbHost,
+    process.env.DB_HOST,
+    process.env.ROOT_DATABASE_URL
+      ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+      : undefined
+  );
+
+/**
+ * Validates and retrieves the branch name from options, environment, or git
+ */
+const getBranchName = (options: { branchName?: string }): string =>
+  validateOption(
+    "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)",
+    options.branchName,
+    process.env.BRANCH_NAME,
+    getCurrentGitBranch()
+  );
+
+/**
+ * Validates and retrieves the database password seed from options or environment
+ */
+const getDbPasswordSeed = (options: { dbPasswordSeed?: string }): string =>
+  validateOption(
+    "Missing required parameter: dbPasswordSeed (provide via --db-password-seed or DB_PASSWORD_SEED env var)",
+    options.dbPasswordSeed,
+    process.env.DB_PASSWORD_SEED
+  );
+
+// ============================================================================
 // DB Command
 // ============================================================================
 
@@ -51,32 +135,11 @@ dbCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: DbCreateOptions) => {
-    const dbName = validateOption(
-      "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
-      options.dbName,
-      process.env.DB_NAME
-    );
-    const dbUser = validateOption(
-      "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
-      options.dbUser,
-      process.env.DB_USER
-    );
-    const dbPassword = validateOption(
-      "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
-      options.dbPassword,
-      process.env.DB_PASSWORD
-    );
-    const rootDatabaseUrl = validateOption(
-      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
-      options.rootDatabaseUrl,
-      process.env.ROOT_DATABASE_URL
-    );
-
     await createDatabase({
-      dbName,
-      dbUser,
-      dbPassword,
-      rootDatabaseUrl,
+      dbName: getDbName(options),
+      dbUser: getDbUser(options),
+      dbPassword: getDbPassword(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
     });
   });
 
@@ -102,22 +165,10 @@ dbCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: DbDeleteOptions) => {
-    const dbName = validateOption(
-      "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
-      options.dbName,
-      process.env.DB_NAME
-    );
-    const rootDatabaseUrl = validateOption(
-      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
-      options.rootDatabaseUrl,
-      process.env.ROOT_DATABASE_URL
-    );
-    const dbUser = options.dbUser || process.env.DB_USER;
-
     await deleteDatabase({
-      dbName,
-      dbUser,
-      rootDatabaseUrl,
+      dbName: getDbName(options),
+      dbUser: getDbUserOptional(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
     });
   });
 
@@ -142,35 +193,11 @@ dbCommand
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .action((options: DbUrlOptions) => {
-    const dbName = validateOption(
-      "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
-      options.dbName,
-      process.env.DB_NAME
-    );
-    const dbUser = validateOption(
-      "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
-      options.dbUser,
-      process.env.DB_USER
-    );
-    const dbPassword = validateOption(
-      "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
-      options.dbPassword,
-      process.env.DB_PASSWORD
-    );
-    const dbHost = validateOption(
-      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
-      options.dbHost,
-      process.env.DB_HOST,
-      process.env.ROOT_DATABASE_URL
-        ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
-        : undefined
-    );
-
     const url = getDatabaseUrl({
-      dbName,
-      dbUser,
-      dbPassword,
-      dbHost,
+      dbName: getDbName(options),
+      dbUser: getDbUser(options),
+      dbPassword: getDbPassword(options),
+      dbHost: getDbHost(options),
     });
     console.log(url);
   });
@@ -208,29 +235,10 @@ previewCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewCreateOptions) => {
-    const branchName = validateOption(
-      "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)",
-      options.branchName,
-      process.env.BRANCH_NAME,
-      getCurrentGitBranch()
-    );
-
-    const dbPasswordSeed = validateOption(
-      "Missing required parameter: dbPasswordSeed (provide via --db-password-seed or DB_PASSWORD_SEED env var)",
-      options.dbPasswordSeed,
-      process.env.DB_PASSWORD_SEED
-    );
-
-    const rootDatabaseUrl = validateOption(
-      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
-      options.rootDatabaseUrl,
-      process.env.ROOT_DATABASE_URL
-    );
-
     await createPreviewDatabase({
-      branchName,
-      dbPasswordSeed,
-      rootDatabaseUrl,
+      branchName: getBranchName(options),
+      dbPasswordSeed: getDbPasswordSeed(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
     });
   });
 
@@ -254,20 +262,10 @@ previewCommand
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
   .action(async (options: PreviewDeleteOptions) => {
-    const branchName = validateOption(
-      "Missing branch name (provide via --branch-name option, BRANCH_NAME env var, or run in a git repository)",
-      options.branchName,
-      process.env.BRANCH_NAME,
-      getCurrentGitBranch()
-    );
-
-    const rootDatabaseUrl = validateOption(
-      "Missing required parameter: rootDatabaseUrl (provide via --root-database-url or ROOT_DATABASE_URL env var)",
-      options.rootDatabaseUrl,
-      process.env.ROOT_DATABASE_URL
-    );
-
-    await deletePreviewDatabase({ branchName, rootDatabaseUrl });
+    await deletePreviewDatabase({
+      branchName: getBranchName(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
+    });
   });
 
 /**
@@ -292,27 +290,11 @@ previewCommand
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
   .action((options: PreviewUrlOptions) => {
-    const branchName = validateOption(
-      "Missing branch name (provide via --branch-name option)",
-      options.branchName
-    );
-
-    const dbPasswordSeed = validateOption(
-      "Missing required parameter: dbPasswordSeed (provide via --db-password-seed or DB_PASSWORD_SEED env var)",
-      options.dbPasswordSeed,
-      process.env.DB_PASSWORD_SEED
-    );
-
-    const dbHost = validateOption(
-      "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
-      options.dbHost,
-      process.env.DB_HOST,
-      process.env.ROOT_DATABASE_URL
-        ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
-        : undefined
-    );
-
-    const url = getPreviewDatabaseUrl({ branchName, dbPasswordSeed, dbHost });
+    const url = getPreviewDatabaseUrl({
+      branchName: getBranchName(options),
+      dbPasswordSeed: getDbPasswordSeed(options),
+      dbHost: getDbHost(options),
+    });
     console.log(url);
   });
 
