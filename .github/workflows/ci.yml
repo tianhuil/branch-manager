@@ -39,5 +39,8 @@ jobs:
       - name: Run spell
         run: bun run spell
 
+      - name: Check migration files
+        run: bun --cwd web drizzle-kit check
+
       - name: Run unit tests
         run: bun run test:unit

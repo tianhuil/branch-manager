@@ -57,8 +57,6 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      # consider adding a step to stop this if there is no DB change (i.e. we continue using the staging DB).
-
       - name: Extract secrets
         id: secrets
         run: |
@@ -84,8 +82,21 @@ jobs:
         env:
           DOTENV_PRIVATE_KEY_CI: ${{ secrets.DOTENV_PRIVATE_KEY_CI }}
 
-      - name: Create Preview Database and get URL
+      - name: Check if the staging schema is up to date
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        run: |
+          git fetch origin staging:staging --force
+
+          # Check if there are new migrations between staging and this branch
+          if git diff --name-only staging ${{ github.sha }} | grep 'lib/db/migrations/.*\.sql$'; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+        id: check_schema
+
+      - name: Create Preview Database if necessary and get URL
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
         id: db_url_step
         run: |
           bun run bm -- preview create \
@@ -93,6 +104,7 @@ jobs:
 
           DATABASE_URL=$(bun run bm -- preview url \
             --branch-name "${{ github.head_ref }}")
+
           echo "::add-mask::$DATABASE_URL"
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
         env:
@@ -100,21 +112,27 @@ jobs:
           ROOT_DATABASE_URL: ${{ steps.secrets.outputs.ROOT_DATABASE_URL }}
 
       - name: Run Drizzle Migrate
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
         run: |
           cd web && bun drizzle-kit push && bun run lib/db/seed.ts
         env:
           DATABASE_URL: ${{ steps.db_url_step.outputs.DATABASE_URL }}
 
-      - name: Update Preview Database URL and trigger Vercel redeployment
-        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+      - name: Update Preview Database URL
+        if: steps.check_schema.outputs.has_changes == 'true' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
         run: |
           # Add DATABASE_URL for the specific Git branch using Vercel CLI
           echo "${{ steps.db_url_step.outputs.DATABASE_URL }}" | \
             bun vercel env add DATABASE_URL preview "${{ github.head_ref }}" \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
             --force
+        env:
+          VERCEL_PROJECT_ID: ${{ steps.secrets.outputs.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ steps.secrets.outputs.VERCEL_ORG_ID }}
 
+      - name: Trigger Vercel redeployment
+        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
+        run: |
           # Trigger a new deployment for the PR's branch using Vercel CLI
           bun vercel deploy \
             --token "${{ steps.secrets.outputs.VERCEL_TOKEN }}" \
