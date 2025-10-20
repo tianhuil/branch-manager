@@ -12,7 +12,6 @@ import {
   validateOption,
 } from "./util";
 import prompts from "prompts";
-import * as process from "node:process";
 
 const program = new Command();
 
@@ -169,6 +168,12 @@ dbCommand
   )
   .option('-y, --yes', "Skip confirmation")
   .action(async (options: DbDeleteOptions) => {
+    const args = {
+      dbName: getDbName(options),
+      dbUser: getDbUserOptional(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
+    }
+
     if (!options.yes) {
       const { confirm } = await prompts({
         type: "confirm",
@@ -181,11 +186,7 @@ dbCommand
       }
     }
 
-    await deleteDatabase({
-      dbName: getDbName(options),
-      dbUser: getDbUserOptional(options),
-      rootDatabaseUrl: getRootDatabaseUrl(options),
-    });
+    await deleteDatabase(args);
   });
 
 /**
