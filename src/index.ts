@@ -166,13 +166,13 @@ dbCommand
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
-  .option('-y, --yes', "Skip confirmation")
+  .option("-y, --yes", "Skip confirmation")
   .action(async (options: DbDeleteOptions) => {
     const args = {
       dbName: getDbName(options),
       dbUser: getDbUserOptional(options),
       rootDatabaseUrl: getRootDatabaseUrl(options),
-    }
+    };
 
     if (!options.yes) {
       const { confirm } = await prompts({

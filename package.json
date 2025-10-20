@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
+    "@types/prompts": "^2.4.9",
     "commander": "^14.0.1",
     "pino": "^10.0.0",
     "pino-pretty": "^13.1.1",
