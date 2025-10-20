@@ -11,6 +11,7 @@ import {
   getCurrentGitBranch,
   validateOption,
 } from "./util";
+import prompts from "prompts";
 
 const program = new Command();
 
@@ -150,6 +151,7 @@ interface DbDeleteOptions {
   dbName?: string;
   dbUser?: string;
   rootDatabaseUrl?: string;
+  yes?: boolean;
 }
 
 dbCommand
@@ -164,12 +166,27 @@ dbCommand
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
+  .option("-y, --yes", "Skip confirmation")
   .action(async (options: DbDeleteOptions) => {
-    await deleteDatabase({
+    const args = {
       dbName: getDbName(options),
       dbUser: getDbUserOptional(options),
       rootDatabaseUrl: getRootDatabaseUrl(options),
-    });
+    };
+
+    if (!options.yes) {
+      const { confirm } = await prompts({
+        type: "confirm",
+        name: "confirm",
+        message: `Are you sure you want to delete the database ${options.dbName}?`,
+        initial: false,
+      });
+      if (!confirm) {
+        process.exit(1);
+      }
+    }
+
+    await deleteDatabase(args);
   });
 
 /**
