@@ -6,9 +6,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "dev": "dotenvx run -f ../.env.development -f ../.env -- next dev --turbopack",
-    "build": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- next build --turbopack",
-    "start": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- next start",
+    "dev": "dotenvx run -f ../.env.development -- next dev --turbopack",
+    "build": "dotenvx run -f ../.env.$VERCEL_ENV -- next build --turbopack",
+    "start": "dotenvx run -f ../.env.$VERCEL_ENV -- next start",
     "test": "bun test",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
@@ -17,12 +17,12 @@
     "typecheck": "tsc --noEmit",
     "check": "eslint && prettier --check . && tsc --noEmit",
     "check:fix": "eslint --fix && prettier --write .",
-    "db:psql": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- sh -c 'psql $DATABASE_URL'",
+    "db:psql": "dotenvx run -f ../.env.$VERCEL_ENV -- sh -c 'psql $DATABASE_URL'",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- drizzle-kit migrate",
-    "db:push": "dotenvx run -f ../.env.development -f ../.env -- drizzle-kit push",
-    "db:studio": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- drizzle-kit studio",
-    "db:seed": "dotenvx run -f ../.env.$VERCEL_ENV -f ../.env -- bun run lib/db/seed.ts"
+    "db:migrate": "dotenvx run -f ../.env.$VERCEL_ENV -- drizzle-kit migrate",
+    "db:push": "dotenvx run -f ../.env.development -- drizzle-kit push",
+    "db:studio": "dotenvx run -f ../.env.$VERCEL_ENV -- drizzle-kit studio",
+    "db:seed": "dotenvx run -f ../.env.$VERCEL_ENV -- bun run lib/db/seed.ts"
   },
   "dependencies": {
     "@tianhuil/branch-manager": "*",
