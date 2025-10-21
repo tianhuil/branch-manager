@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
+import prompts from "prompts";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import {
   createPreviewDatabase,
@@ -11,7 +12,6 @@ import {
   getCurrentGitBranch,
   validateOption,
 } from "./util";
-import prompts from "prompts";
 
 const program = new Command();
 
@@ -23,6 +23,19 @@ program
 // ============================================================================
 // Field Validation Functions
 // ============================================================================
+
+/**
+ * Prompts user to confirm a delete operation
+ */
+const confirmDelete = async (itemName: string): Promise<boolean> => {
+  const { confirm } = await prompts({
+    type: "confirm",
+    name: "confirm",
+    message: `Are you sure you want to delete ${itemName}?`,
+    initial: false,
+  });
+  return confirm;
+};
 
 /**
  * Validates and retrieves the database name from options or environment
@@ -168,25 +181,19 @@ dbCommand
   )
   .option("-y, --yes", "Skip confirmation")
   .action(async (options: DbDeleteOptions) => {
-    const args = {
-      dbName: getDbName(options),
-      dbUser: getDbUserOptional(options),
-      rootDatabaseUrl: getRootDatabaseUrl(options),
-    };
-
+    const dbName = getDbName(options);
     if (!options.yes) {
-      const { confirm } = await prompts({
-        type: "confirm",
-        name: "confirm",
-        message: `Are you sure you want to delete the database ${options.dbName}?`,
-        initial: false,
-      });
+      const confirm = await confirmDelete(`the database ${dbName}`);
       if (!confirm) {
         process.exit(1);
       }
     }
 
-    await deleteDatabase(args);
+    await deleteDatabase({
+      dbName,
+      dbUser: getDbUserOptional(options),
+      rootDatabaseUrl: getRootDatabaseUrl(options),
+    });
   });
 
 /**
@@ -265,6 +272,7 @@ previewCommand
 interface PreviewDeleteOptions {
   branchName?: string;
   rootDatabaseUrl?: string;
+  yes?: boolean;
 }
 
 previewCommand
@@ -278,9 +286,20 @@ previewCommand
     "--root-database-url <url>",
     "Root database URL (overrides ROOT_DATABASE_URL env var)"
   )
+  .option("-y, --yes", "Skip confirmation")
   .action(async (options: PreviewDeleteOptions) => {
+    const branchName = getBranchName(options);
+    if (!options.yes) {
+      const confirm = await confirmDelete(
+        `the preview database for branch ${branchName}`
+      );
+      if (!confirm) {
+        process.exit(1);
+      }
+    }
+
     await deletePreviewDatabase({
-      branchName: getBranchName(options),
+      branchName,
       rootDatabaseUrl: getRootDatabaseUrl(options),
     });
   });
