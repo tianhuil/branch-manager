@@ -7,11 +7,7 @@ import {
   deletePreviewDatabase,
   getPreviewDatabaseUrl,
 } from "./preview";
-import {
-  extractHostFromDatabaseUrl,
-  getCurrentGitBranch,
-  validateOption,
-} from "./util";
+import { getCurrentGitBranch, validateOption } from "./util";
 
 const program = new Command();
 
@@ -42,9 +38,12 @@ const confirmDelete = async (itemName: string): Promise<boolean> => {
  */
 const getDbName = (options: { dbName?: string }): string =>
   validateOption(
-    "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+    "Missing required parameter: dbName (provide via --db-name or DB_NAME, DATABASE_URL env vars)",
     options.dbName,
-    process.env.DB_NAME
+    process.env.DB_NAME,
+    process.env.DATABASE_URL
+      ? new URL(process.env.DATABASE_URL).pathname.slice(1)
+      : undefined
   );
 
 /**
@@ -52,25 +51,35 @@ const getDbName = (options: { dbName?: string }): string =>
  */
 const getDbUser = (options: { dbUser?: string }): string =>
   validateOption(
-    "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
+    "Missing required parameter: dbUser (provide via --db-user or DB_USER, DATABASE_URL env vars)",
     options.dbUser,
-    process.env.DB_USER
+    process.env.DB_USER,
+    process.env.DATABASE_URL
+      ? new URL(process.env.DATABASE_URL).username
+      : undefined
   );
 
 /**
  * Retrieves the optional database user from options or environment
  */
 const getDbUserOptional = (options: { dbUser?: string }): string | undefined =>
-  options.dbUser || process.env.DB_USER;
+  options.dbUser ||
+  process.env.DB_USER ||
+  (process.env.DATABASE_URL
+    ? new URL(process.env.DATABASE_URL).username
+    : undefined);
 
 /**
  * Validates and retrieves the database password from options or environment
  */
 const getDbPassword = (options: { dbPassword?: string }): string =>
   validateOption(
-    "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
+    "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD, DATABASE_URL env vars)",
     options.dbPassword,
-    process.env.DB_PASSWORD
+    process.env.DB_PASSWORD,
+    process.env.DATABASE_URL
+      ? new URL(process.env.DATABASE_URL).password
+      : undefined
   );
 
 /**
@@ -88,11 +97,11 @@ const getRootDatabaseUrl = (options: { rootDatabaseUrl?: string }): string =>
  */
 const getDbHost = (options: { dbHost?: string }): string =>
   validateOption(
-    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL env var)",
+    "Missing required parameter: dbHost (provide via --db-host option or DB_HOST, DATABASE_URL env vars)",
     options.dbHost,
     process.env.DB_HOST,
-    process.env.ROOT_DATABASE_URL
-      ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+    process.env.DATABASE_URL
+      ? new URL(process.env.DATABASE_URL).hostname
       : undefined
   );
 

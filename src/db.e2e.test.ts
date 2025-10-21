@@ -2,7 +2,7 @@ import { spawnSync } from "bun";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { join } from "path";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
-import { extractHostFromDatabaseUrl, getDB, processEnvOrThrow } from "./util";
+import { getDB, processEnvOrThrow } from "./util";
 
 /**
  * Run drizzle-kit push with the specified database URL.
@@ -33,7 +33,7 @@ const containsPostgresError = (result: Bun.SyncSubprocess<"pipe", "pipe">) => {
  */
 describe("db-setup e2e", () => {
   const rootDatabaseUrl = processEnvOrThrow("ROOT_DATABASE_URL");
-  const dbHost = extractHostFromDatabaseUrl(rootDatabaseUrl);
+  const dbHost = new URL(rootDatabaseUrl).hostname;
 
   // Test database configuration
   const testDb1 = {

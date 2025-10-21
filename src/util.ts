@@ -28,16 +28,6 @@ export const processEnvOrThrow = (key: string): string => {
 };
 
 /**
- * Extract hostname from database URL
- * @param databaseUrl - Database URL to extract hostname from
- * @returns The hostname from the URL
- */
-export const extractHostFromDatabaseUrl = (databaseUrl: string): string => {
-  const url = new URL(databaseUrl);
-  return url.hostname;
-};
-
-/**
  * Validates that at least one of the provided options is truthy
  * @param error - Error message to throw if validation fails
  * @param options - Variable number of option values to check (first truthy value wins)
