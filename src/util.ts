@@ -27,14 +27,31 @@ export const processEnvOrThrow = (key: string): string => {
   return value;
 };
 
+interface DatabaseUrlParts {
+  host: string;
+  user?: string;
+  password?: string;
+  dbName?: string;
+}
+
 /**
- * Extract hostname from database URL
+ * Extract hostname, user, and password from database URL
  * @param databaseUrl - Database URL to extract hostname from
- * @returns The hostname from the URL
+ * @returns An object containing the values extracted from the URL
  */
-export const extractHostFromDatabaseUrl = (databaseUrl: string): string => {
+export const extractPartsFromDatabaseUrl = (
+  databaseUrl: string
+): DatabaseUrlParts => {
   const url = new URL(databaseUrl);
-  return url.hostname;
+  const user = decodeURIComponent(url.username);
+  const password = decodeURIComponent(url.password);
+  const dbName = url.pathname.replace(/^\/+|\/+$/g, ""); // Remove trailing and leading slashes
+  return {
+    host: url.hostname,
+    user: user.length > 0 ? user : undefined,
+    password: password.length > 0 ? password : undefined,
+    dbName: dbName.length > 0 ? dbName : undefined,
+  };
 };
 
 /**

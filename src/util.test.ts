@@ -1,53 +1,84 @@
 import { describe, expect, test } from "bun:test";
-import { extractHostFromDatabaseUrl, validateOption } from "./util";
+import { extractPartsFromDatabaseUrl, validateOption } from "./util";
 
-describe("extractHostFromDatabaseUrl", () => {
+describe("extractPartsFromDatabaseUrl", () => {
   test.each([
     {
       description: "PostgreSQL URL with port",
       url: "postgresql://user:password@db.example.com:5432/database",
-      expected: "db.example.com",
+      expected: {
+        host: "db.example.com",
+        user: "user",
+        password: "password",
+        dbName: "database",
+      },
     },
     {
       description: "PostgreSQL URL without port",
-      url: "postgresql://user:password@db.example.com/postgres",
-      expected: "db.example.com",
+      url: "postgresql://abc:def@db.example.com/postgres",
+      expected: {
+        host: "db.example.com",
+        user: "abc",
+        password: "def",
+        dbName: "postgres",
+      },
     },
     {
       description: "MySQL URL",
       url: "mysql://user:password@mysql.example.com:3306/app",
-      expected: "mysql.example.com",
+      expected: {
+        host: "mysql.example.com",
+        user: "user",
+        password: "password",
+        dbName: "app",
+      },
     },
     {
       description: "localhost URL",
       url: "postgresql://localhost:5432/main",
-      expected: "localhost",
+      expected: {
+        host: "localhost",
+        dbName: "main",
+      },
     },
     {
       description: "IP address",
       url: "postgresql://192.168.1.100:5432/data",
-      expected: "192.168.1.100",
+      expected: {
+        host: "192.168.1.100",
+        dbName: "data",
+      },
     },
     {
       description: "URL with special characters in credentials",
       url: "postgresql://user%40email.com:p%40ssw0rd@db.example.com/api",
-      expected: "db.example.com",
+      expected: {
+        host: "db.example.com",
+        user: "user@email.com",
+        password: "p@ssw0rd",
+        dbName: "api",
+      },
     },
     {
-      description: "Neon serverless URL",
-      url: "postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/production",
-      expected: "ep-cool-darkness-123456.us-east-2.aws.neon.tech",
+      description: "Neon serverless URL with query params",
+      url: "postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/production?sslmode=require",
+      expected: {
+        host: "ep-cool-darkness-123456.us-east-2.aws.neon.tech",
+        user: "user",
+        password: "password",
+        dbName: "production",
+      },
     },
-  ])("extracts hostname from $description", ({ url, expected }) => {
-    expect(extractHostFromDatabaseUrl(url)).toBe(expected);
+  ])("extracts url parts from $description", ({ url, expected }) => {
+    expect(extractPartsFromDatabaseUrl(url)).toEqual(expected);
   });
 
   test("throws error for invalid URL", () => {
-    expect(() => extractHostFromDatabaseUrl("not-a-valid-url")).toThrow();
+    expect(() => extractPartsFromDatabaseUrl("not-a-valid-url")).toThrow();
   });
 
   test("throws error for empty string", () => {
-    expect(() => extractHostFromDatabaseUrl("")).toThrow();
+    expect(() => extractPartsFromDatabaseUrl("")).toThrow();
   });
 });
 
