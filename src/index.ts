@@ -97,9 +97,12 @@ const getRootDatabaseUrl = (options: { rootDatabaseUrl?: string }): string =>
  */
 const getDbHost = (options: { dbHost?: string }): string =>
   validateOption(
-    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or DATABASE_URL env var)",
+    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or ROOT_DATABASE_URL/DATABASE_URL env var)",
     options.dbHost,
     process.env.DB_HOST,
+    process.env.ROOT_DATABASE_URL
+      ? extractPartsFromDatabaseUrl(process.env.ROOT_DATABASE_URL).host
+      : undefined,
     process.env.DATABASE_URL
       ? extractPartsFromDatabaseUrl(process.env.DATABASE_URL).host
       : undefined
