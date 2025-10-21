@@ -136,7 +136,8 @@ export const getDatabaseUrl = ({
   dbPassword,
   dbHost,
 }: GetDatabaseUrlParams) => {
-  // URL-encode the password to handle special characters
+  // URL-encode user and password to handle special characters
+  const encodedUser = encodeURIComponent(dbUser);
   const encodedPassword = encodeURIComponent(dbPassword);
-  return `postgresql://${dbUser}:${encodedPassword}@${dbHost}/${dbName}?sslmode=require`;
+  return `postgresql://${encodedUser}:${encodedPassword}@${dbHost}/${dbName}?sslmode=require`;
 };

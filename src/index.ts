@@ -7,7 +7,7 @@ import {
   getPreviewDatabaseUrl,
 } from "./preview";
 import {
-  extractHostFromDatabaseUrl,
+  extractPartsFromDatabaseUrl,
   getCurrentGitBranch,
   validateOption,
 } from "./util";
@@ -29,9 +29,12 @@ program
  */
 const getDbName = (options: { dbName?: string }): string =>
   validateOption(
-    "Missing required parameter: dbName (provide via --db-name or DB_NAME env var)",
+    "Missing required parameter: dbName (provide via --db-name or DB_NAME env var or DATABASE_URL env var)",
     options.dbName,
-    process.env.DB_NAME
+    process.env.DB_NAME,
+    process.env.DATABASE_URL
+      ? extractPartsFromDatabaseUrl(process.env.DATABASE_URL).dbName
+      : undefined
   );
 
 /**
@@ -39,9 +42,12 @@ const getDbName = (options: { dbName?: string }): string =>
  */
 const getDbUser = (options: { dbUser?: string }): string =>
   validateOption(
-    "Missing required parameter: dbUser (provide via --db-user or DB_USER env var)",
+    "Missing required parameter: dbUser (provide via --db-user or DB_USER env var or DATABASE_URL env var)",
     options.dbUser,
-    process.env.DB_USER
+    process.env.DB_USER,
+    process.env.DATABASE_URL
+      ? extractPartsFromDatabaseUrl(process.env.DATABASE_URL).user
+      : undefined
   );
 
 /**
@@ -55,9 +61,12 @@ const getDbUserOptional = (options: { dbUser?: string }): string | undefined =>
  */
 const getDbPassword = (options: { dbPassword?: string }): string =>
   validateOption(
-    "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var)",
+    "Missing required parameter: dbPassword (provide via --db-password or DB_PASSWORD env var or DATABASE_URL env var)",
     options.dbPassword,
-    process.env.DB_PASSWORD
+    process.env.DB_PASSWORD,
+    process.env.DATABASE_URL
+      ? extractPartsFromDatabaseUrl(process.env.DATABASE_URL).password
+      : undefined
   );
 
 /**
@@ -79,7 +88,7 @@ const getDbHost = (options: { dbHost?: string }): string =>
     options.dbHost,
     process.env.DB_HOST,
     process.env.ROOT_DATABASE_URL
-      ? extractHostFromDatabaseUrl(process.env.ROOT_DATABASE_URL)
+      ? extractPartsFromDatabaseUrl(process.env.ROOT_DATABASE_URL).host
       : undefined
   );
 
