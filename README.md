@@ -9,12 +9,12 @@ request on Github. However, if the branch has an updated SQL database schema,
 the code on the branch app will fail. Branch Manager aims to automate creating
 of simple **"DB branches"**.
 
-Branch Manager is a lightweight alternative to fancy **branches** provided by
-vendors like [Neon](https://neon.com/) or
+Branch Manager is a lightweight alternative to fancy **vendor branches**
+provided by vendors like [Neon](https://neon.com/) or
 [PlanetScale](https://planetscale.com/). It has three advantages:
 
-- ✅ Branch Manager is Vendor agnostic 🎉! Avoid vendor lock-in by relying on
-  Postgres primitives.
+- ✅ Branch Manager is Vendor agnostic 🎉! Avoid vendor lock-in by relying
+  solely on open source Postgres primitives.
 
 - ✅ No new abstractions to learn 🎉! Vendor branches are a new abstraction that
   may not work as expected. Branch Manager creates plain old Postgres
