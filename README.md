@@ -234,7 +234,7 @@ bun run test:e2e
   node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no
   environment variables.
 
-### Usage in Github Actions
+### Automatically creating branch databases on Pull Requests via Github Actions
 
 See the file `.github/workflows/pr-deploy.yml` for the reference example. On
 Pull Requests with updates to the migration folder, it automatically:
@@ -244,6 +244,9 @@ Pull Requests with updates to the migration folder, it automatically:
 - Updates the preview database in Vercel
 - Triggers a Vercel redeployment to update the token
 - Adds a comment to Github Pull Request to document this
+
+You can see the result on
+[this Pull Request](https://github.com/tianhuil/branch-manager/pull/10).
 
 ### Secrets Management
 
