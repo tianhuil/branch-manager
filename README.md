@@ -31,7 +31,7 @@ There is one main drawback to using Branch Manager:
   user to run a seeding script post branch creation. We believe that having a
   seeding script is a best practice so this is not a big downside.
 
-## Install
+## Install and Setup
 
 ### Install from GitHub
 
@@ -51,7 +51,7 @@ yarn add github:tianhuil/branch-manager
 pnpm add github:tianhuil/branch-manager
 ```
 
-### Run the CLI
+### Basic CLI Usage
 
 After installation:
 
@@ -63,6 +63,21 @@ npx bm preview --help
 npx github:tianhuil/branch-manager bm preview --help
 bunx --bun github:tianhuil/branch-manager bm preview --help
 ```
+
+## Automatically creating branch databases on Pull Requests via Github Actions
+
+See the file `.github/workflows/pr-deploy.yml` for the reference example. On
+Pull Requests with updates to the migration folder, it automatically:
+
+- Uses branch manager to create a new database and saves the new database's URL.
+- Runs `drizzle push` on this new branch and executes the seeding script
+- Updates the preview database env variable on that branch in Vercel (otherwise,
+  the default staging database is used)
+- Triggers a Vercel redeployment to update the new env variable
+- Adds a comment to Github Pull Request to document this
+
+You can see the result on
+[this Pull Request](https://github.com/tianhuil/branch-manager/pull/10).
 
 ## Cli Overview
 
@@ -233,20 +248,6 @@ bun run test:e2e
   `bun run pack` and then test installing the compressed archive on the major
   node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no
   environment variables.
-
-### Automatically creating branch databases on Pull Requests via Github Actions
-
-See the file `.github/workflows/pr-deploy.yml` for the reference example. On
-Pull Requests with updates to the migration folder, it automatically:
-
-- Uses branch manager to create a new database and saves the new database's URL.
-- Runs `drizzle push` on this new branch and executes the seeding script
-- Updates the preview database in Vercel
-- Triggers a Vercel redeployment to update the token
-- Adds a comment to Github Pull Request to document this
-
-You can see the result on
-[this Pull Request](https://github.com/tianhuil/branch-manager/pull/10).
 
 ### Secrets Management
 
