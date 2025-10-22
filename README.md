@@ -234,6 +234,17 @@ bun run test:e2e
   node package managers (`npm`, `yarn`, `pnpm`, and `bun`). This requires no
   environment variables.
 
+### Usage in Github Actions
+
+See the file `.github/workflows/pr-deploy.yml` for the reference example. On
+Pull Requests with updates to the migration folder, it automatically:
+
+- Uses branch manager to create a new database and saves the new database's URL.
+- Runs `drizzle push` on this new branch and executes the seeding script
+- Updates the preview database in Vercel
+- Triggers a Vercel redeployment to update the token
+- Adds a comment to Github Pull Request to document this
+
 ### Secrets Management
 
 This repo use [dotenvx](https://dotenvx.com/) to manage secrets for the demo web
