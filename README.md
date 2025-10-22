@@ -25,7 +25,7 @@ vendors like [Neon](https://neon.com/) or
   roles. Branch Manager automatically creates user and roles with permissions
   isolated to your DB branch.
 
-There are a few drawbacks to using Branch Manager:
+There is one main drawback to using Branch Manager:
 
 - ❌ Vendor branches copy data from the parent branch. Branch Manger expects a
   user to run a seeding script post branch creation. We believe that having a
