@@ -5,9 +5,9 @@
 ## Motivation
 
 Vercel accelerates development by creating an independent branch app per pull
-request on Github. However, if the branch has an updated SQL database schema,
-the code on the branch app will fail. Branch Manager aims to automate creating
-of simple **"DB branches"**.
+request on Github. However, if they point to the same DB and the branch app has
+an updated SQL database schema, it will fail. Branch Manager aims to automate
+creating of simple **"DB branches"**.
 
 Branch Manager is a lightweight alternative to fancy **vendor branches**
 provided by vendors like [Neon](https://neon.com/) or
@@ -17,19 +17,22 @@ provided by vendors like [Neon](https://neon.com/) or
   solely on open source Postgres primitives.
 
 - ✅ No new abstractions to learn 🎉! Vendor branches are a new abstraction that
-  may not work as expected. Branch Manager creates plain old Postgres
-  [databases](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html).
+  may not work as expected. When Branch Manager creates a DB branch, it's just
+  running
+  [`CREATE DATABASE`](https://www.postgresql.org/docs/7.4/manage-ag-createdb.html)
+  within the same Postgres DB.
 
 - ✅ Branch Manager is a complete solution 🎉! While Vendor tools help you to
-  create user (aka roles), it doesn't help grant the right permissions for those
-  roles. Branch Manager automatically creates user and roles with permissions
-  isolated to your DB branch.
+  create users (aka roles), it doesn't help grant the right permissions for
+  those roles. Branch Manager automatically creates user and roles with
+  permissions isolated to your DB branch.
 
 There is one main drawback to using Branch Manager:
 
 - ❌ Vendor branches copy data from the parent branch. Branch Manger expects a
   user to run a seeding script post branch creation. We believe that having a
-  seeding script is a best practice so this is not a big downside.
+  seeding script is a best practice for development so this is not a big
+  downside.
 
 ## Install and Setup
 
