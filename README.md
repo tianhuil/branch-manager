@@ -142,41 +142,41 @@ This is a low-level API. It is useful for setting up permanent environments
 ```bash
 # Create database with explicit credentials
 bm db create \
-  --db-name my-db \
-  --db-user my-user \
-  --db-password my-pass \
+  --db-name my_db \
+  --db-user my_user \
+  --db-password my_pass \
   --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
-DB_NAME=my-db \
-  DB_USER=my-user \
-  DB_PASSWORD=my-pass \
+DB_NAME=my_db \
+  DB_USER=my_user \
+  DB_PASSWORD=my_pass \
   ROOT_DATABASE_URL=postgresql://user:pass@host/db \
   bm db create
 
 # Get connection URL
 bm db url \
-  --db-name my-db \
-  --db-user my-user \
-  --db-password my-pass \
+  --db-name my_db \
+  --db-user my_user \
+  --db-password my_pass \
   --db-host db.example.com
 
 # Or using environment variables:
-DB_NAME=my-db \
-  DB_USER=my-user \
-  DB_PASSWORD=my-pass \
+DB_NAME=my_db \
+  DB_USER=my_user \
+  DB_PASSWORD=my_pass \
   DB_HOST=db.example.com \
   bm db url
 
 # Delete database
 bm db delete \
-  --db-name my-db \
-  --db-user my-user \
+  --db-name my_db \
+  --db-user my_user \
   --root-database-url postgresql://user:pass@host/db
 
 # Or using environment variables:
-DB_NAME=my-db \
-  DB_USER=my-user \
+DB_NAME=my_db \
+  DB_USER=my_user \
   ROOT_DATABASE_URL=postgresql://user:pass@host/db \
   bm db delete
 ```
