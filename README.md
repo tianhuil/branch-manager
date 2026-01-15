@@ -137,8 +137,7 @@ This prevents
 ### `bm db` - Direct database operations (advanced)
 
 This is a low-level API. It is useful for setting up permanent environments
-(e.g. staging, canary, production, testing, qa) with with segregated
-credentials.
+(e.g. staging, canary, production, testing, qa) with segregated credentials.
 
 ```bash
 # Create database with explicit credentials
