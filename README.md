@@ -36,22 +36,19 @@ There is one main drawback to using Branch Manager:
 
 ## Install and Setup
 
+This library uses the "Direct TS" deployment approach—shipping pure TypeScript
+source code without a build step. Since Bun has a built-in transpiler, consumers
+get instant type checking and IDE autocompletion directly from the source.
+
+> **Note:** Node.js v24+ has a type stripping feature that causes issues with
+> TypeScript files in node_modules. For Node users, use the `dist` branch or a
+> registry.
+
 ### Install from GitHub
 
-Choose your preferred package manager:
-
 ```bash
-# Bun
+# Bun (recommended)
 bun add github:tianhuil/branch-manager
-
-# npm
-npm install github:tianhuil/branch-manager
-
-# yarn
-yarn add github:tianhuil/branch-manager
-
-# pnpm
-pnpm add github:tianhuil/branch-manager
 ```
 
 ### Basic CLI Usage
@@ -59,11 +56,10 @@ pnpm add github:tianhuil/branch-manager
 After installation:
 
 ```bash
-# Run from node_modules
-npx bm preview --help
+# Run from node_modules (uses bun runtime)
+bunx --bun bm preview --help
 
 # Or run directly from GitHub without installing
-npx github:tianhuil/branch-manager bm preview --help
 bunx --bun github:tianhuil/branch-manager bm preview --help
 ```
 
@@ -293,26 +289,41 @@ This library uses the "Direct TS" deployment approach—shipping pure TypeScript
 source code without a build step. Since Bun has a built-in transpiler, consumers
 get instant type checking and IDE autocompletion directly from the source.
 
+> **Note:** Node.js v24+ has a type stripping feature that causes issues with
+> TypeScript files in node_modules. For Node users, use the `dist` branch or a
+> registry.
+
 ### Package.json Configuration
 
-The key is pointing `main`, `module`, `types`, and `exports` directly at `.ts`
-files:
+The key is pointing `main`, `types`, and `exports` directly at `.ts` files:
 
 ```json
 {
   "name": "@tianhuil/branch-manager",
   "type": "module",
-  "main": "./src/index.ts",
-  "module": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "index.ts",
+  "types": "index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "index.ts",
+      "default": "index.ts"
+    }
   }
 }
 ```
 
 Pointing `types` to the `.ts` file gives consumers perfect IDE autocompletion
 because TypeScript can read types directly from source code.
+
+### Install from GitHub
+
+```bash
+# Bun (recommended) - Direct TS, works out of the box
+bun add github:tianhuil/branch-manager
+
+# Node (v24+) - Use the dist branch
+npm install github:tianhuil/branch-manager#dist
+```
 
 ### Versioning without npm
 
@@ -332,24 +343,11 @@ git push origin v1.0.0
 To install a specific version:
 
 ```bash
+# Bun
 bun add github:tianhuil/branch-manager#v1.0.0
+
+# Node
+npm install github:tianhuil/branch-manager#v1.0.0
 ```
 
-If you omit the `#tag`, Bun will grab the latest commit from the default branch.
-
-### Installing from a Monorepo
-
-If the library lives inside a monorepo, use the `path:` syntax:
-
-```bash
-bun add "github:tianhuil/branch-manager#path:packages/my-lib"
-```
-
-> **Note:** If `path:` syntax causes issues, consider keeping the library in its
-> own dedicated repository.
-
-### Should you compile to JS?
-
-**No.** Using `postinstall` to run `bun build` requires consumers to have
-`devDependencies` like `typescript` installed. Instead, this library ships pure
-TypeScript source code, and Bun handles the transpilation transparently.
+If you omit the `#tag`, the latest commit from the default branch is used.
