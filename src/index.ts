@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import prompts from "prompts";
+import { version } from "./package.json";
 import { createDatabase, deleteDatabase, getDatabaseUrl } from "./db";
 import {
   createPreviewDatabase,
@@ -18,7 +19,7 @@ const program = new Command();
 program
   .name("Branch Manager")
   .description("CLI for managing database branches and preview databases")
-  .version("1.0.0");
+  .version(version);
 
 // ============================================================================
 // Field Validation Functions
