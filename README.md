@@ -168,6 +168,13 @@ DB_NAME=my_db \
   DB_HOST=db.example.com \
   bm db url
 
+# Or using root-database-url (host is extracted from it):
+bm db url \
+  --db-name my_db \
+  --db-user my_user \
+  --db-password my_pass \
+  --root-database-url postgresql://user:pass@host/db
+
 # Delete database
 bm db delete \
   --db-name my_db \

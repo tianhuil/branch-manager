@@ -95,13 +95,19 @@ const getRootDatabaseUrl = (options: { rootDatabaseUrl?: string }): string =>
 /**
  * Validates and retrieves the database host from options, environment, or root URL
  */
-const getDbHost = (options: { dbHost?: string }): string =>
+const getDbHost = (options: {
+  dbHost?: string;
+  rootDatabaseUrl?: string;
+}): string =>
   validateOption(
-    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or DATABASE_URL env var or ROOT_DATABASE_URL env var)",
+    "Missing required parameter: dbHost (provide via --db-host or DB_HOST env var or --root-database-url or ROOT_DATABASE_URL env var or DATABASE_URL env var)",
     options.dbHost,
     process.env.DB_HOST,
     process.env.DATABASE_URL
       ? extractPartsFromDatabaseUrl(process.env.DATABASE_URL).host
+      : undefined,
+    options.rootDatabaseUrl
+      ? extractPartsFromDatabaseUrl(options.rootDatabaseUrl).host
       : undefined,
     process.env.ROOT_DATABASE_URL
       ? extractPartsFromDatabaseUrl(process.env.ROOT_DATABASE_URL).host
@@ -216,6 +222,7 @@ interface DbUrlOptions {
   dbUser?: string;
   dbPassword?: string;
   dbHost?: string;
+  rootDatabaseUrl?: string;
 }
 
 dbCommand
@@ -228,6 +235,10 @@ dbCommand
     "Database password (overrides DB_PASSWORD env var)"
   )
   .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
+  .option(
+    "--root-database-url <url>",
+    "Root database URL; host is extracted from it (overrides ROOT_DATABASE_URL env var)"
+  )
   .action((options: DbUrlOptions) => {
     const url = getDatabaseUrl({
       dbName: getDbName(options),
