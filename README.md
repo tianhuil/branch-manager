@@ -286,3 +286,70 @@ The CI environment `.env.ci` also contains:
 - Vercel credentials for deploying Vercel.
 - Secrets `ROOT_DATABASE_URL` and `DB_PASSWORD_SEED` to make changes to the
   database in the Github Actions environment.
+
+## Direct TypeScript Deployment (Bun)
+
+This library uses the "Direct TS" deployment approach—shipping pure TypeScript
+source code without a build step. Since Bun has a built-in transpiler, consumers
+get instant type checking and IDE autocompletion directly from the source.
+
+### Package.json Configuration
+
+The key is pointing `main`, `module`, `types`, and `exports` directly at `.ts`
+files:
+
+```json
+{
+  "name": "@tianhuil/branch-manager",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
+```
+
+Pointing `types` to the `.ts` file gives consumers perfect IDE autocompletion
+because TypeScript can read types directly from source code.
+
+### Versioning without npm
+
+Since we're not using a registry, **Git Tags** are used for versioning:
+
+```bash
+# Commit changes
+git commit -m "feat: add feature"
+
+# Create a tag
+git tag v1.0.0
+
+# Push the tag
+git push origin v1.0.0
+```
+
+To install a specific version:
+
+```bash
+bun add github:tianhuil/branch-manager#v1.0.0
+```
+
+If you omit the `#tag`, Bun will grab the latest commit from the default branch.
+
+### Installing from a Monorepo
+
+If the library lives inside a monorepo, use the `path:` syntax:
+
+```bash
+bun add "github:tianhuil/branch-manager#path:packages/my-lib"
+```
+
+> **Note:** If `path:` syntax causes issues, consider keeping the library in its
+> own dedicated repository.
+
+### Should you compile to JS?
+
+**No.** Using `postinstall` to run `bun build` requires consumers to have
+`devDependencies` like `typescript` installed. Instead, this library ships pure
+TypeScript source code, and Bun handles the transpilation transparently.
