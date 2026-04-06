@@ -40,9 +40,8 @@ This library uses the "Direct TS" deployment approach—shipping pure TypeScript
 source code without a build step. Since Bun has a built-in transpiler, consumers
 get instant type checking and IDE autocompletion directly from the source.
 
-> **Note:** Node.js v24+ has a type stripping feature that causes issues with
-> TypeScript files in node_modules. For Node users, use the `dist` branch or a
-> registry.
+> **Only Bun is supported.** Node.js v24+ has a type stripping feature that
+> causes issues with TypeScript files in node_modules.
 
 ### Install from GitHub
 
@@ -289,9 +288,8 @@ This library uses the "Direct TS" deployment approach—shipping pure TypeScript
 source code without a build step. Since Bun has a built-in transpiler, consumers
 get instant type checking and IDE autocompletion directly from the source.
 
-> **Note:** Node.js v24+ has a type stripping feature that causes issues with
-> TypeScript files in node_modules. For Node users, use the `dist` branch or a
-> registry.
+> **Only Bun is supported.** Node.js v24+ has a type stripping feature that
+> causes issues with TypeScript files in node_modules.
 
 ### Package.json Configuration
 
@@ -318,11 +316,8 @@ because TypeScript can read types directly from source code.
 ### Install from GitHub
 
 ```bash
-# Bun (recommended) - Direct TS, works out of the box
+# Bun only
 bun add github:tianhuil/branch-manager
-
-# Node (v24+) - Use the dist branch
-npm install github:tianhuil/branch-manager#dist
 ```
 
 ### Versioning without npm
@@ -345,9 +340,6 @@ To install a specific version:
 ```bash
 # Bun
 bun add github:tianhuil/branch-manager#v1.0.0
-
-# Node
-npm install github:tianhuil/branch-manager#v1.0.0
 ```
 
 If you omit the `#tag`, the latest commit from the default branch is used.
