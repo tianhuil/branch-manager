@@ -234,10 +234,13 @@ dbCommand
     "--db-password <password>",
     "Database password (overrides DB_PASSWORD env var)"
   )
-  .option("--db-host <host>", "Database host (overrides DB_HOST env var)")
+  .option(
+    "--db-host <host>",
+    "Database host (overrides DB_HOST env var; alternative: use --root-database-url to extract host)"
+  )
   .option(
     "--root-database-url <url>",
-    "Root database URL; host is extracted from it (overrides ROOT_DATABASE_URL env var)"
+    "Root database URL; host is extracted from it (overrides ROOT_DATABASE_URL env var; alternative to --db-host)"
   )
   .action((options: DbUrlOptions) => {
     const url = getDatabaseUrl({
